@@ -5,6 +5,8 @@
         <DefineConstants>FABLE_COMPILER</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <Content Include="styles\styles.less" />
+        <Compile Include="Pages\Home.fs" />
         <None Include="index.html" />
         <None Include="paket.references" />
         <Compile Include="Index.fs" />
@@ -15,9 +17,6 @@
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Fable.Builders.AntDesign" Version="4.7.0" />
-    </ItemGroup>
-    <ItemGroup>
-      <Content Include="styles\styles.less" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
