@@ -6,6 +6,7 @@
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="Build.fs" />
+    <Folder Include="data" />
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>

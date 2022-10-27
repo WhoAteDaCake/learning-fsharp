@@ -5,10 +5,14 @@
         <DefineConstants>FABLE_COMPILER</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
-        <Content Include="styles\styles.less" />
+        <Compile Include="Api.fs" />
+        <Compile Include="Layout\Header.fs" />
         <Compile Include="Pages\Home.fs" />
+    </ItemGroup>
+    <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
+        <Content Include="styles\styles.less" />
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
