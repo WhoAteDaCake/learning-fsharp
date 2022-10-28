@@ -16,6 +16,7 @@
         <Content Include="styles\styles.less" />
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
+        <Folder Include="Components" />
         <PackageReference Include="Feliz.Router" Version="3.8.0" />
         
         <ProjectReference Include="..\Shared\Shared.fsproj" />
