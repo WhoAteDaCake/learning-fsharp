@@ -1,6 +1,5 @@
 module Index
 
-open Client
 open Elmish
 open Fable.Core
 open Fable.Builders.AntDesign
@@ -9,35 +8,45 @@ open Client.Routing
 open Feliz
 open Feliz.Router
 
+[<RequireQualifiedAccess>]
 type Page =
     | Home of Home.Model
     | NotFound
 
-type Model = { page: Page; url: Url;  }
+type Model = { page: Page; url: Url }
 
 type Msg =
     | HomeMsg of Home.Msg
-    | UrlChanged of string list
+    | UrlChanged of Url
 
 let init () : Model * Cmd<Msg> =
-    let initialUrl = parseUrl (Router.currentUrl())
+    let initialUrl =
+        parseUrl (Router.currentUrl ())
+
     let page, cmd =
         match initialUrl with
         | Url.Home ->
             let model, cmd = Home.init ()
-            Home model, Cmd.map HomeMsg cmd
-        | Url.NotFound ->
-            NotFound, Cmd.none
-    { page = page; url = initialUrl; }, cmd
+            Page.Home model, Cmd.map HomeMsg cmd
+        | Url.NotFound -> Page.NotFound, Cmd.none
+
+    { page = page; url = initialUrl }, cmd
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg, model.page with
-    | HomeMsg msg, Home state ->
+    | HomeMsg msg, Page.Home state ->
         let data, cmd = Home.update msg state
-        { model with page = Home data }, Cmd.map HomeMsg cmd
-    | UrlChanged parts, _ ->
-        let url = Routing.parseUrl parts
-        { model with url = url }, Cmd.none
+        { model with page = Page.Home data }, Cmd.map HomeMsg cmd
+    | UrlChanged newUrl, _ ->
+        let show page =
+            { model with page = page; url = newUrl }
+
+        match newUrl with
+        | Url.Home ->
+            let model, cmd = Home.init ()
+            show (Page.Home model), Cmd.map HomeMsg cmd
+        | Url.NotFound -> show Page.NotFound, Cmd.none
+    //
     | _, _ -> model, Cmd.none
 
 JsInterop.importAll "${outDir}/../styles/styles.less"
@@ -45,21 +54,17 @@ JsInterop.importAll "${outDir}/../styles/styles.less"
 let view (model: Model) (dispatch: Msg -> unit) =
     let currentPage =
         match model.page with
-        | Home state -> Home.view state (HomeMsg >> dispatch)
-        | NotFound -> str "Page not found"
+        | Page.Home state -> Home.view state (HomeMsg >> dispatch)
+        | Page.NotFound -> str "Page not found"
 
     let layout =
         Layout {
-            Header {
-                str "Header here"
-            }
-            Content {
-                currentPage
-            }
+            Header { str "Header here" }
+            Content { currentPage }
         }
 
     React.router [
-        router.onUrlChanged (UrlChanged >> dispatch)
+        router.onUrlChanged (parseUrl >> UrlChanged >> dispatch)
         router.children [ layout ]
     ]
 
