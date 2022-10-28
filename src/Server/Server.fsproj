@@ -8,7 +8,7 @@
         <Compile Include="Remote\Bookmarks.fs" />
         <Compile Include="Remote\Stats.fs" />
         <None Include="paket.references" />
-        <Compile Include="Server.fs" />
+        <Compile Include="App.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Shared\Shared.fsproj" />
