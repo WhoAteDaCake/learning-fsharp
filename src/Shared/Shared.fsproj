@@ -4,12 +4,13 @@
         <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="Error.fs"/>
-        <Compile Include="Route.fs"/>
-        <Compile Include="Remote\Bookmark.fs"/>
+        <Compile Include="Error.fs" />
+        <Compile Include="Route.fs" />
+        <Compile Include="Remote\Bookmark.fs" />
+        <Compile Include="Remote\Stats.fs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="FsToolkit.ErrorHandling" Version="3.1.0"/>
+        <PackageReference Include="FsToolkit.ErrorHandling" Version="3.1.0" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets"/>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

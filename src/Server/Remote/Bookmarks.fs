@@ -1,6 +1,6 @@
 module Server.Remote.Bookmarks
 
-open Shared.Bookmark
+open Shared.Remote.Bookmark
 open FsToolkit.ErrorHandling
 
 let mutable store =

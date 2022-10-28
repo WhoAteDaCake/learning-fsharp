@@ -6,6 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="Remote\Bookmarks.fs" />
+        <Compile Include="Remote\Stats.fs" />
         <None Include="paket.references" />
         <Compile Include="Server.fs" />
     </ItemGroup>
