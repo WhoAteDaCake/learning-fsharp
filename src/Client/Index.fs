@@ -4,54 +4,64 @@ open Client
 open Elmish
 open Fable.Core
 open Fable.Builders.AntDesign
-open Shared
 open Client.Pages
+open Client.Routing
+open Feliz
+open Feliz.Router
 
-type Model = { Todos: Todo list; Input: string; home: Home.Model  }
+type Page =
+    | Home of Home.Model
+    | NotFound
+
+type Model = { page: Page; url: Url;  }
 
 type Msg =
-    | GotTodos of Todo list
-    | SetInput of string
-    | AddTodo
-    | AddedTodo of Todo
-    | Home of Home.Msg
+    | HomeMsg of Home.Msg
+    | UrlChanged of string list
 
 let init () : Model * Cmd<Msg> =
-    let home, homeCmd = Home.init ()
-    let model = { Todos = []; Input = ""; home = home }
-
-    // let baseCmd = Cmd.OfAsync.perform todosApi.getTodos () GotTodos
-    let cmd = Cmd.batch [
-        Cmd.map Home homeCmd;
-        // baseCmd
-    ]
-
-    model, cmd
+    let initialUrl = parseUrl (Router.currentUrl())
+    let page, cmd =
+        match initialUrl with
+        | Url.Home ->
+            let model, cmd = Home.init ()
+            Home model, Cmd.map HomeMsg cmd
+        | Url.NotFound ->
+            NotFound, Cmd.none
+    { page = page; url = initialUrl; }, cmd
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
-    match msg with
-    | GotTodos todos -> { model with Todos = todos }, Cmd.none
-    | SetInput value -> { model with Input = value }, Cmd.none
-    | AddTodo ->
-        let todo = Todo.create model.Input
-
-        let cmd = Cmd.OfAsync.perform Api.todos.addTodo todo AddedTodo
-
-        { model with Input = "" }, cmd
-    | AddedTodo todo -> { model with Todos = model.Todos @ [ todo ] }, Cmd.none
-    | Home msg ->
-        let res, cmd = Home.update msg model.home
-        { model with home = res }, Cmd.map Home cmd
+    match msg, model.page with
+    | HomeMsg msg, Home state ->
+        let data, cmd = Home.update msg state
+        { model with page = Home data }, Cmd.map HomeMsg cmd
+    | UrlChanged parts, _ ->
+        let url = Routing.parseUrl parts
+        { model with url = url }, Cmd.none
+    | _, _ -> model, Cmd.none
 
 JsInterop.importAll "${outDir}/../styles/styles.less"
 
 let view (model: Model) (dispatch: Msg -> unit) =
-    Content {
-        PageHeader {
-            title (str "Login ")
-            subTitle (str "Please log-in to enter.")
+    let currentPage =
+        match model.page with
+        | Home state -> Home.view state (HomeMsg >> dispatch)
+        | NotFound -> str "Page not found"
+
+    let layout =
+        Layout {
+            Header {
+                str "Header here"
+            }
+            Content {
+                currentPage
+            }
         }
-    }
+
+    React.router [
+        router.onUrlChanged (UrlChanged >> dispatch)
+        router.children [ layout ]
+    ]
 
 // let view (model: Model) (dispatch: Msg -> unit) =
 //     Bulma.hero [

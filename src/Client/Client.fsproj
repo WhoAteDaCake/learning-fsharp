@@ -5,22 +5,21 @@
         <DefineConstants>FABLE_COMPILER</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <None Include="index.html" />
+        <None Include="paket.references" />
+        <Compile Include="Routing.fs" />
+        <Compile Include="Deferred.fs" />
         <Compile Include="Api.fs" />
         <Compile Include="Layout\Header.fs" />
         <Compile Include="Pages\Home.fs" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="index.html" />
-        <None Include="paket.references" />
+
         <Content Include="styles\styles.less" />
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
-    </ItemGroup>
-    <ItemGroup>
+        <PackageReference Include="Feliz.Router" Version="3.8.0" />
+        
         <ProjectReference Include="..\Shared\Shared.fsproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <PackageReference Include="Fable.Builders.AntDesign" Version="4.7.0" />
+        <PackageReference Include="Fable.Builders.AntDesign" Version="4.7.0" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
