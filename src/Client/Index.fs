@@ -59,7 +59,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
 
     let layout =
         Layout {
-            Header { str "Header here" }
+            Header { [ AppLayout.Header.view model.Url ] }
             Content { currentPage }
         }
 

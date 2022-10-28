@@ -1,4 +1,4 @@
-module Client.Layout.Header
+module Client.AppLayout.Header
 
 open Client.Conversion
 open Client
@@ -14,12 +14,12 @@ let view (url: Url) =
     <| JSX.jsx
         $"""
         import {Menu} from 'antd';
-            <Menu
+        <Menu
             theme="dark"
             mode="horizontal"
             defaultSelectedKeys={[ '2' ]}
             items={items}
-      />
+        />
       """
 // Header {
 //     Row {

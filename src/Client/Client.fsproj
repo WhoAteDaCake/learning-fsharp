@@ -9,9 +9,10 @@
         <None Include="paket.references" />
         <Compile Include="Remote\Bookmarks.fs" />
         <Compile Include="Remote\Stats.fs" />
+        <Compile Include="Conversion.fs" />
         <Compile Include="Routing.fs" />
         <Compile Include="Deferred.fs" />
-        <Compile Include="Layout\Header.fs" />
+        <Compile Include="AppLayout\Header.fs" />
         <Compile Include="Pages\Home.fs" />
         <Compile Include="Pages\Bookmarks.fs" />
 
