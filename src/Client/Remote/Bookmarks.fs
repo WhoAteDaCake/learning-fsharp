@@ -1,9 +1,10 @@
-module Client.Api
+module Client.Remote.Bookmarks
 
 open Fable.Remoting.Client
 open Shared
+open Shared.Remote
 
-let todos =
+let api =
     Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.buildProxy<ITodosApi>
+    |> Remoting.buildProxy<Bookmark.IBookmarksApi>

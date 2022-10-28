@@ -13,7 +13,7 @@ type Page =
     | Home of Home.Model
     | NotFound
 
-type Model = { page: Page; url: Url }
+type Model = { Page: Page; Url: Url }
 
 type Msg =
     | HomeMsg of Home.Msg
@@ -30,16 +30,16 @@ let init () : Model * Cmd<Msg> =
             Page.Home model, Cmd.map HomeMsg cmd
         | Url.NotFound -> Page.NotFound, Cmd.none
 
-    { page = page; url = initialUrl }, cmd
+    { Page = page; Url = initialUrl }, cmd
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
-    match msg, model.page with
+    match msg, model.Page with
     | HomeMsg msg, Page.Home state ->
         let data, cmd = Home.update msg state
-        { model with page = Page.Home data }, Cmd.map HomeMsg cmd
+        { model with Page = Page.Home data }, Cmd.map HomeMsg cmd
     | UrlChanged newUrl, _ ->
         let show page =
-            { model with page = page; url = newUrl }
+            { model with Page = page; Url = newUrl }
 
         match newUrl with
         | Url.Home ->
@@ -53,7 +53,7 @@ JsInterop.importAll "${outDir}/../styles/styles.less"
 
 let view (model: Model) (dispatch: Msg -> unit) =
     let currentPage =
-        match model.page with
+        match model.Page with
         | Page.Home state -> Home.view state (HomeMsg >> dispatch)
         | Page.NotFound -> str "Page not found"
 

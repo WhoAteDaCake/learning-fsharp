@@ -1,4 +1,4 @@
-module Client.Pages.Home
+module Client.Pages.Bookmarks
 
 open Client
 open Client.Deferred
