@@ -8,10 +8,12 @@ open Client.Routing
 open Feliz
 open Feliz.Router
 
+
 [<RequireQualifiedAccess>]
 type Page =
     | Home of Home.Model
     | NotFound
+    | Bookmark
 
 type Model = { Page: Page; Url: Url }
 
@@ -56,14 +58,15 @@ let view (model: Model) (dispatch: Msg -> unit) =
         match model.Page with
         | Page.Home state -> Home.view state (HomeMsg >> dispatch)
         | Page.NotFound -> str "Page not found"
+        | Page.Bookmark -> str "Bookmark"
 
     let layout =
         Layout {
-            Header { [ AppLayout.Header.view model.Url ] }
+            // Header { [ Client.AppLayout.Header.view model.Url ] }
             Content { currentPage }
         }
 
-    React.router [
+    Feliz.React.router [
         router.onUrlChanged (parseUrl >> UrlChanged >> dispatch)
         router.children [ layout ]
     ]
