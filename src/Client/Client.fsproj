@@ -20,9 +20,9 @@
         <Compile Include="App.fs" />
         <Folder Include="Components" />
         <PackageReference Include="Feliz.Router" Version="3.8.0" />
+        <ProjectReference Include="..\..\third-party\Feliz.Antd\Feliz.Antd.fsproj" />
 
         <ProjectReference Include="..\Shared\Shared.fsproj" />
-        <PackageReference Include="Fable.Builders.AntDesign" Version="4.7.0" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

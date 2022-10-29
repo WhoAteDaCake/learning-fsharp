@@ -4,6 +4,7 @@ open Client
 open Client.Deferred
 open Elmish
 open Fable.React
+open Feliz.Antd
 
 type Graph =
     | Nodes of
@@ -47,4 +48,6 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | Load Started -> { model with Bookmarks = InProgress }, Cmd.none
     | Load (Finished result) -> { model with Bookmarks = Resolved result }, Cmd.none
 
-let view (model: Model) (dispatch: Msg -> unit) = str "Home page here"
+let view (model: Model) (dispatch: Msg -> unit) =
+    Antd.button [ button.disabled false
+                  button.children [ str "Click" ] ]

@@ -1,12 +1,11 @@
 module Index
 
-open Elmish
-open Fable.Core
-open Fable.Builders.AntDesign
-open Client.Pages
-open Client.Routing
 open Feliz
 open Feliz.Router
+open Elmish
+open Fable.Core
+open Client.Pages
+open Client.Routing
 
 
 [<RequireQualifiedAccess>]
@@ -31,6 +30,7 @@ let init () : Model * Cmd<Msg> =
             let model, cmd = Home.init ()
             Page.Home model, Cmd.map HomeMsg cmd
         | Url.NotFound -> Page.NotFound, Cmd.none
+        | Url.Bookmarks -> Page.Bookmark, Cmd.none
 
     { Page = page; Url = initialUrl }, cmd
 
@@ -57,14 +57,13 @@ let view (model: Model) (dispatch: Msg -> unit) =
     let currentPage =
         match model.Page with
         | Page.Home state -> Home.view state (HomeMsg >> dispatch)
-        | Page.NotFound -> str "Page not found"
-        | Page.Bookmark -> str "Bookmark"
+        | Page.NotFound -> Html.div [ prop.text "Not found" ]
+        | Page.Bookmark -> Html.div [ prop.text "Bookmarks" ]
 
     let layout =
-        Layout {
-            // Header { [ Client.AppLayout.Header.view model.Url ] }
-            Content { currentPage }
-        }
+        Html.div [
+            prop.children [ currentPage ]
+        ]
 
     Feliz.React.router [
         router.onUrlChanged (parseUrl >> UrlChanged >> dispatch)
