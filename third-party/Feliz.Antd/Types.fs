@@ -11,3 +11,9 @@ type IButtonProperty =
 type ILayoutProperty =
     interface
     end
+
+
+[<Erase>]
+type ILayoutHeaderProperty =
+    interface
+    end

@@ -3,8 +3,9 @@ module Client.Pages.Home
 open Client
 open Client.Deferred
 open Elmish
+open Feliz
 open Fable.React
-open Feliz.Antd
+open Feliz.AntdReact
 
 type Graph =
     | Nodes of

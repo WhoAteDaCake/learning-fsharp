@@ -5,12 +5,14 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="Types.fs"/>
-        <Compile Include="Interop.fs"/>
-        <Compile Include="Layout\Layout.fs"/>
-        <Compile Include="Button.fs"/>
-        <Compile Include="Antd.fs"/>
-        <Content Include="paket.references"/>
+        <Compile Include="Types.fs" />
+        <Compile Include="Interop.fs" />
+        <Compile Include="Extensions\Children.fs" />
+        <Compile Include="Layout\Layout.fs" />
+        <Compile Include="Layout\LayoutHeader.fs" />
+        <Compile Include="Button.fs" />
+        <Compile Include="Antd.fs" />
+        <Content Include="paket.references" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets"/>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

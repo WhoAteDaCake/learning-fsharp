@@ -1,9 +1,9 @@
 module Client.AppLayout.AppHeader
-//
-// open Client.Routing
-// open Fable.Builders.AntDesign
-//
-// let view (url: Url) =
+
+open Client.Routing
+open Feliz
+
+let view (url: Url) = Html.div [ prop.text "Header" ]
 //     Header {
 //         Row {
 //             Menu {

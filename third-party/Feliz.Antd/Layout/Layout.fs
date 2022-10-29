@@ -5,6 +5,7 @@ open Fable.Core.JsInterop
 
 [<Erase>]
 type layout =
+    inherit Children<ILayoutProperty>
     static member inline className(value: string) = Interop.mkLayoutAttr "className" value
 
     static member inline className(names: seq<string>) =

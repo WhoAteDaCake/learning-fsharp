@@ -1,8 +1,9 @@
 module Index
 
+open Client.AppLayout
 open Feliz
 open Feliz.Router
-open Feliz.Antd
+open Feliz.AntdReact
 open Elmish
 open Fable.Core
 open Client.Pages
@@ -63,7 +64,14 @@ let view (model: Model) (dispatch: Msg -> unit) =
 
     let layout =
         Antd.layout [
-            prop.children [ currentPage ]
+            layout.children [
+                Antd.layoutHeader [
+                    layoutHeader.children [
+                        AppHeader.view model.Url
+                    ]
+                ]
+                currentPage
+            ]
         ]
 
     Feliz.React.router [
