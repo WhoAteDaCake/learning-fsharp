@@ -1,8 +1,13 @@
-namespace Feliz.Antd
+namespace Feliz.AntdReact
 
 open Fable.Core
 
 [<Erase>]
 type IButtonProperty =
+    interface
+    end
+
+[<Erase>]
+type ILayoutProperty =
     interface
     end

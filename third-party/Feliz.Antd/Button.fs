@@ -1,7 +1,6 @@
-namespace Feliz.Antd
+namespace Feliz.AntdReact
 
 open Fable.Core
-open Fable.React
 open Feliz
 
 [<Erase>]

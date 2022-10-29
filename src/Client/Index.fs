@@ -2,6 +2,7 @@ module Index
 
 open Feliz
 open Feliz.Router
+open Feliz.Antd
 open Elmish
 open Fable.Core
 open Client.Pages
@@ -61,7 +62,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
         | Page.Bookmark -> Html.div [ prop.text "Bookmarks" ]
 
     let layout =
-        Html.div [
+        Antd.layout [
             prop.children [ currentPage ]
         ]
 
