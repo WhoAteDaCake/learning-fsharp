@@ -18,6 +18,11 @@ type ILayoutHeaderProperty =
     interface
     end
 
+[<Erase>]
+type ILayoutContentProperty =
+    interface
+    end
+
 
 [<Erase>]
 type IRowProperty =

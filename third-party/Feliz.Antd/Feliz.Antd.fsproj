@@ -10,6 +10,7 @@
         <Compile Include="Extensions\Children.fs" />
         <Compile Include="Layout\Layout.fs" />
         <Compile Include="Layout\LayoutHeader.fs" />
+        <Compile Include="Layout\LayoutContent.fs" />
         <Compile Include="Grid\Row.fs" />
         <Compile Include="Button.fs" />
         <Compile Include="Antd.fs" />
