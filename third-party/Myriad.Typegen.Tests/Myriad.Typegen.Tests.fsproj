@@ -5,9 +5,12 @@
 
         <IsPackable>false</IsPackable>
         <GenerateProgramFile>false</GenerateProgramFile>
+         <MyriadSdkVerboseOutput>true</MyriadSdkVerboseOutput> 
+         <MyriadSdkWaitForDebugger>true</MyriadSdkWaitForDebugger> 
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Base.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="Bindings.fs" />
         <Compile Include="Generated.fs">
@@ -35,5 +38,4 @@
       <ProjectReference Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj" />
     </ItemGroup>
     <Import Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props" />
-
 </Project>

@@ -1,5 +1,7 @@
 module Myriad.Typegen.Tests
 
+open Myriad.Typegen.Tests.Base
 open Myriad.Plugins
 
-type test = string
+type button<'T> =
+    inherit withChildren<'T>
