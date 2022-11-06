@@ -1,5 +1,5 @@
 <Project>
     <ItemGroup>
-        <MyriadSdkGenerator Include="$(MSBuildThisFileDirectory)/../lib/net5.0/$(AssemblyName).dll" />
+        <MyriadSdkGenerator Include="$(MSBuildThisFileDirectory)/../bin/$(Configuration)/net6.0/Feliz.Antd.Myriad.Plugins.Typegen.dll" />
     </ItemGroup>
 </Project>

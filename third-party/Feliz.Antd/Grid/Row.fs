@@ -3,6 +3,7 @@ namespace Feliz.AntdReact
 open Fable.Core
 open Fable.Core.JsInterop
 
+// TODO: generator should allow raw passing of these types.
 type RowAlign =
 | Top
 | Middle
