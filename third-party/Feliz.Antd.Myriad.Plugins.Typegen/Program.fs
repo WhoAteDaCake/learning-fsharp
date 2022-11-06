@@ -12,10 +12,25 @@ open Myriad.Core.Ast
 open FSharp.Compiler.Text.Range
 open FSharp.Compiler.SyntaxTrivia
 
+module Interop =
+    let  attr (key: string) (value: obj) = unbox (key, value)
+
+    type inlined = obj
+
+    type Extends([<ParamArray>] classes: Type array) =
+        member this.classes = classes
+
 [<RequireQualifiedAccess>]
 module Generator =
-    type Component() =
+    type Component(name: string) =
         inherit Attribute()
+
+    /// Mark a class as method only, this way we can re-use the code
+    /// These classes will be removed in the final produced file
+    type Methods() =
+        inherit Attribute()
+
+
 
 [<MyriadGenerator("Feliz.Antd.typegen")>]
 type Example() =
@@ -30,7 +45,7 @@ type Example() =
             let namespaceAndrecords =
                 extractRecords ast
                 |> List.choose (fun (ns, types) ->
-                    match types |> List.filter hasAttribute<Generator.Component> with
+                    match types |> List.filter hasAttribute<Generator.Methods> with
                     | [] -> None
                     | types -> Some (ns, types))
             let letPattern = SynPat.CreateNamed (Ident.Create "fortyTwo")
