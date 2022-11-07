@@ -7,6 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Generator.fs" />
+        <Compile Include="Interop.fs" />
+        <Compile Include="Core.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

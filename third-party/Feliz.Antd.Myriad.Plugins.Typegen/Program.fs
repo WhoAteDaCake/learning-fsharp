@@ -11,43 +11,7 @@ open Myriad.Core
 open Myriad.Core.Ast
 open FSharp.Compiler.Text.Range
 open FSharp.Compiler.SyntaxTrivia
-
-module Interop =
-    let attr (key: string) (value: obj) = unbox (key, value)
-
-    type inlined = obj
-
-    type Extends([<ParamArray>] classes: Type array) =
-        member this.classes = classes
-
-[<RequireQualifiedAccess>]
-module Generator =
-    type ComponentAttribute(name: string) =
-        inherit Attribute()
-
-    /// Mark a class as method only, this way we can re-use the code
-    /// These classes will be removed in the final produced file
-    type MethodsAttribute() =
-        inherit Attribute()
-
-    /// A marker to include an additional type
-    type IncludedAttribute() =
-        inherit Attribute()
-
-module Core =
-    let sortTypes acc (_, types) =
-        types
-        |> List.fold
-            (fun (included, methods, components) typeDef ->
-                if hasAttribute<Generator.ComponentAttribute> (typeDef) then
-                    (included, methods, typeDef :: components)
-                elif hasAttribute<Generator.MethodsAttribute> (typeDef) then
-                    (included, typeDef :: methods, components)
-                elif hasAttribute<Generator.IncludedAttribute> (typeDef) then
-                    (typeDef :: included, methods, components)
-                else
-                    (included, methods, components))
-            acc
+open Feliz.Antd.Myriad.Plugins.Typegen
 
 
 [<MyriadGenerator("Feliz.Antd.typegen")>]
@@ -65,14 +29,11 @@ type Example() =
                 (extractTypeDefn ast)
                 |> List.fold Core.sortTypes ([], [], [])
 
-            // let namespaceAndrecords =
-            //     extractRecords ast
-            //     |> List.choose (fun (ns, types) ->
-            //         match types
-            //               |> List.filter hasAttribute<Generator.MethodsAttribute>
-            //             with
-            //         | [] -> None
-            //         | types -> Some(ns, types))
+            let methodMap =
+                Map(
+                    methods
+                    |> List.map (fun m -> (Core.typeName m, m))
+                )
 
             let letPattern =
                 SynPat.CreateNamed(Ident.Create "fortyTwo")
