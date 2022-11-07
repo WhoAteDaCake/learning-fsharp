@@ -22,16 +22,16 @@ module Interop =
 
 [<RequireQualifiedAccess>]
 module Generator =
-    type Component(name: string) =
+    type ComponentAttribute(name: string) =
         inherit Attribute()
 
     /// Mark a class as method only, this way we can re-use the code
     /// These classes will be removed in the final produced file
-    type Methods() =
+    type MethodsAttribute() =
         inherit Attribute()
 
     /// A marker to include an additional type
-    type Included() =
+    type IncludedAttribute() =
         inherit Attribute()
 
 module Core =
@@ -39,11 +39,11 @@ module Core =
         types
         |> List.fold
             (fun (included, methods, components) typeDef ->
-                if hasAttribute<Generator.Component> (typeDef) then
+                if hasAttribute<Generator.ComponentAttribute> (typeDef) then
                     (included, methods, typeDef :: components)
-                elif hasAttribute<Generator.Methods> (typeDef) then
+                elif hasAttribute<Generator.MethodsAttribute> (typeDef) then
                     (included, typeDef :: methods, components)
-                elif hasAttribute<Generator.Included> (typeDef) then
+                elif hasAttribute<Generator.IncludedAttribute> (typeDef) then
                     (typeDef :: included, methods, components)
                 else
                     (included, methods, components))
@@ -65,14 +65,14 @@ type Example() =
                 (extractTypeDefn ast)
                 |> List.fold Core.sortTypes ([], [], [])
 
-            let namespaceAndrecords =
-                extractRecords ast
-                |> List.choose (fun (ns, types) ->
-                    match types
-                          |> List.filter hasAttribute<Generator.Methods>
-                        with
-                    | [] -> None
-                    | types -> Some(ns, types))
+            // let namespaceAndrecords =
+            //     extractRecords ast
+            //     |> List.choose (fun (ns, types) ->
+            //         match types
+            //               |> List.filter hasAttribute<Generator.MethodsAttribute>
+            //             with
+            //         | [] -> None
+            //         | types -> Some(ns, types))
 
             let letPattern =
                 SynPat.CreateNamed(Ident.Create "fortyTwo")
