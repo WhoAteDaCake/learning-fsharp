@@ -3,13 +3,14 @@ module Myriad.Typegen.Tests
 open Myriad.Typegen.Tests.Base
 open Myriad.Plugins
 
-
 [<Generator.Methods>]
 type WithClass =
-    static member inline className(value: string) = Interop.attr "className" value
+    static member inline classNames(value: string) = Interop.attr "className" value
 
     static member inline className(names: seq<string>) =
         Interop.attr "className" (String.concat " " names)
+
+
 
 [<Generator.Methods>]
 type WithChildren =
@@ -18,8 +19,5 @@ type WithChildren =
 
 [<Generator.Component("button")>]
 type ButtonMethods() =
-    inherit Interop.Extends(
-        typedefof<WithClass>,
-        typedefof<WithChildren>
-    )
+    inherit Interop.Extends(typedefof<WithClass>, typedefof<WithChildren>)
     static member inline disabled(value: bool) = Interop.attr "disabled" value
