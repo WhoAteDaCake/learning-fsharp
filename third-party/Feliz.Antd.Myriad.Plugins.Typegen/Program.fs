@@ -6,6 +6,7 @@ open FSharp.Compiler
 open Myriad.Core
 open System
 open FSharp.Compiler.Syntax
+open FSharp.Compiler.Text
 open FSharp.Compiler.Xml
 open Myriad.Core
 open Myriad.Core.Ast
@@ -38,20 +39,20 @@ type Example() =
             let test1 =
                 Core.modifyStaticMembers (fun m -> m |> List.map Core.replaceInteropInMember) methods[1]
 
-            let letPattern =
-                SynPat.CreateNamed(Ident.Create "fortyTwo")
-
-            let let42 =
-                SynModuleDecl.CreateLet [ SynBinding.Let(
-                                              pattern = letPattern,
-                                              expr = SynExpr.CreateConst(SynConst.Int32 42)
-                                          ) ]
+            // let letPattern =
+            //     SynPat.CreateNamed(Ident.Create "fortyTwo")
+            //
+            // let let42 =
+            //     SynModuleDecl.CreateLet [ SynBinding.Let(
+            //                                   pattern = letPattern,
+            //                                   expr = SynExpr.CreateConst(SynConst.Int32 42)
+            //                               ) ]
 
             let componentInfo =
                 SynComponentInfo.Create [ Ident.Create "example1" ]
 
             let nestedModule =
-                SynModuleDecl.CreateNestedModule(componentInfo, [ let42 ])
+                SynModuleDecl.CreateNestedModule(componentInfo, [ SynModuleDecl.Types([test1], Range.Zero) ])
 
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(Ident.CreateLong "hello", decls = [ nestedModule ])

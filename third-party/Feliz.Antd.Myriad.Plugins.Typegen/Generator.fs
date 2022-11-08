@@ -7,6 +7,9 @@ module Generator =
     type ComponentAttribute(name: string) =
         inherit Attribute()
 
+    type ExtendsMethodsAttribute([<ParamArray>] toInherit: Type array) =
+        inherit Attribute()
+
     /// Mark a class as method only, this way we can re-use the code
     /// These classes will be removed in the final produced file
     type MethodsAttribute() =

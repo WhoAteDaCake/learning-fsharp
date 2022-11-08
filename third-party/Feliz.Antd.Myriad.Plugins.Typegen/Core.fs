@@ -7,6 +7,7 @@ open Fable.AST.Fable
 open Myriad.Core
 open System
 open FSharp.Compiler.Syntax
+open FSharp.Compiler.Text
 open FSharp.Compiler.Xml
 open Myriad.Core
 open Myriad.Core.Ast
@@ -43,24 +44,30 @@ let modifyStaticMembers
         | SynTypeDefnRepr.ObjectModel (kind, members, range) -> SynTypeDefnRepr.ObjectModel(kind, fn members, range)
         | _ -> synTypeDefnRepr
 
-    SynTypeDefn(synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
+    SynTypeDefn(synComponentInfo, newTypeDefn, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
 
+// let isInteropMethod )
 
 let isInteropCall =
     function
-    | (LongIdentWithDots (Syntax.Ident ("Interop", _) :: [ "attr" ], _)) -> true
+    | (LongIdentWithDots (moduleName :: [methodName], _)) ->
+        moduleName.idText = "Interop" && methodName.idText = "attr"
     | _ -> false
 
 
 let rec replaceInteropInExpr =
     function
     | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
-        SynExpr.App(exprAtomicFlag, isInfix, replaceInteropInExpr funcExpr, argExpr, range)
+        let newFuncExpr = replaceInteropInExpr funcExpr
+        SynExpr.App(exprAtomicFlag, isInfix, newFuncExpr, argExpr, range)
     | SynExpr.LongIdent (isOptional, longDotId, altNameRefCall, range) ->
-        if isInteropCall longDotId then
-            SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
-        else
-            SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
+        let output =
+            if isInteropCall longDotId then
+                let newAttr = LongIdentWithDots.Create(["CustomInterop"; "test"])
+                SynExpr.LongIdent(isOptional, newAttr, altNameRefCall, range)
+            else
+                SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
+        output
     | item -> item
 
 let replaceInteropInSynBinding
@@ -78,6 +85,7 @@ let replaceInteropInSynBinding
                  debugPointAtBinding,
                  synBindingTrivia))
     =
+    let newExpr = replaceInteropInExpr synExpr
     (SynBinding(
         synAccessOption,
         synBindingKind,
@@ -88,13 +96,15 @@ let replaceInteropInSynBinding
         synValData,
         headPat,
         synBindingReturnInfoOption,
-        replaceInteropInExpr synExpr,
-        range,
+        newExpr,
+        Range.Zero,
         debugPointAtBinding,
         synBindingTrivia
     ))
 
 let replaceInteropInMember =
     function
-    | SynMemberDefn.Member (dnf, range) -> SynMemberDefn.Member(replaceInteropInSynBinding dnf, range)
+    | SynMemberDefn.Member (dnf, range) ->
+        let newMember = replaceInteropInSynBinding dnf
+        SynMemberDefn.Member(newMember, Range.Zero)
     | item -> item

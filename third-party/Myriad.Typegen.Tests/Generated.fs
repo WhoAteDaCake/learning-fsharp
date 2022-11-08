@@ -7,6 +7,3 @@
 
 namespace hello
 
-module example1 =
-    let fortyTwo = 42
-
