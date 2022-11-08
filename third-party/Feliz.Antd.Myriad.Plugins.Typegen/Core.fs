@@ -3,6 +3,7 @@ module Feliz.Antd.Myriad.Plugins.Typegen.Core
 open System
 open System.IO
 open FSharp.Compiler
+open Fable.AST.Fable
 open Myriad.Core
 open System
 open FSharp.Compiler.Syntax
@@ -45,10 +46,21 @@ let modifyStaticMembers
     SynTypeDefn(synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
 
 
-let replaceInteropInExpr =
+let isInteropCall =
+    function
+    | (LongIdentWithDots (Syntax.Ident ("Interop", _) :: [ "attr" ], _)) -> true
+    | _ -> false
+
+
+let rec replaceInteropInExpr =
     function
     | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
-        SynExpr.App(exprAtomicFlag, isInfix, funcExpr, argExpr, range)
+        SynExpr.App(exprAtomicFlag, isInfix, replaceInteropInExpr funcExpr, argExpr, range)
+    | SynExpr.LongIdent (isOptional, longDotId, altNameRefCall, range) ->
+        if isInteropCall longDotId then
+            SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
+        else
+            SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
     | item -> item
 
 let replaceInteropInSynBinding

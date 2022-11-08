@@ -32,6 +32,12 @@
         <PackageReference Include="FsAst" Version="0.13.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Fable.AST">
+        <HintPath>..\..\..\..\.nuget\packages\fable.ast\4.2.0\lib\netstandard2.0\Fable.AST.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
     <Import Project="build/Feliz.Antd.Myriad.Plugins.Typegen.props" />
 
 </Project>
