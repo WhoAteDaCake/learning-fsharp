@@ -18,6 +18,6 @@ type WithChildren =
 
 [<Generator.Component("button")>]
 type ButtonMethods() =
-    inherit Interop.Extends(typedefof<WithClass>)
-    // inherit Interop.Extends(typedefof<WithClass>, typedefof<WithChildren>)
+    // inherit Interop.Extends(typedefof<WithClass>)
+    inherit Interop.Extends(typedefof<WithClass>, typedefof<WithChildren>)
     static member inline disabled(value: bool) = Interop.attr "disabled" value

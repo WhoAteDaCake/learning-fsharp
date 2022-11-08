@@ -31,3 +31,58 @@ let sortTypes acc (_, types) =
             else
                 (included, methods, components))
         acc
+
+
+let modifyStaticMembers
+    fn
+    (SynTypeDefn (synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia))
+    =
+    let newTypeDefn =
+        match synTypeDefnRepr with
+        | SynTypeDefnRepr.ObjectModel (kind, members, range) -> SynTypeDefnRepr.ObjectModel(kind, fn members, range)
+        | _ -> synTypeDefnRepr
+
+    SynTypeDefn(synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
+
+
+let replaceInteropInExpr =
+    function
+    | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
+        SynExpr.App(exprAtomicFlag, isInfix, funcExpr, argExpr, range)
+    | item -> item
+
+let replaceInteropInSynBinding
+    (SynBinding (synAccessOption,
+                 synBindingKind,
+                 isInline,
+                 isMutable,
+                 synAttributeLists,
+                 preXmlDoc,
+                 synValData,
+                 headPat,
+                 synBindingReturnInfoOption,
+                 synExpr,
+                 range,
+                 debugPointAtBinding,
+                 synBindingTrivia))
+    =
+    (SynBinding(
+        synAccessOption,
+        synBindingKind,
+        isInline,
+        isMutable,
+        synAttributeLists,
+        preXmlDoc,
+        synValData,
+        headPat,
+        synBindingReturnInfoOption,
+        replaceInteropInExpr synExpr,
+        range,
+        debugPointAtBinding,
+        synBindingTrivia
+    ))
+
+let replaceInteropInMember =
+    function
+    | SynMemberDefn.Member (dnf, range) -> SynMemberDefn.Member(replaceInteropInSynBinding dnf, range)
+    | item -> item

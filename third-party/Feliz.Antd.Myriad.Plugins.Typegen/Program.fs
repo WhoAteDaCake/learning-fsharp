@@ -35,6 +35,9 @@ type Example() =
                     |> List.map (fun m -> (Core.typeName m, m))
                 )
 
+            let test1 =
+                Core.modifyStaticMembers (fun m -> m |> List.map Core.replaceInteropInMember) methods[1]
+
             let letPattern =
                 SynPat.CreateNamed(Ident.Create "fortyTwo")
 
