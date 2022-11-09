@@ -14,6 +14,7 @@ open Myriad.Core.Ast
 open FSharp.Compiler.Text.Range
 open FSharp.Compiler.SyntaxTrivia
 open Myriad.Plugins
+open Feliz.Antd.Myriad.Plugins.Typegen.Extensions
 
 
 let typeName (SynTypeDefn (typeInfo, _, _, _, _, _)) =
@@ -35,6 +36,14 @@ let sortTypes acc (_, types) =
         acc
 
 
+let getStaticMembers
+    (SynTypeDefn (synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia))
+    =
+    match synTypeDefnRepr with
+    | SynTypeDefnRepr.ObjectModel (kind, members, range) -> members
+    | _ -> []
+
+
 let modifyStaticMembers
     fn
     (SynTypeDefn (synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia))
@@ -48,25 +57,32 @@ let modifyStaticMembers
 
 // let isInteropMethod )
 
-let isInteropCall =
+let longIndentWithDotsToLs =
     function
-    | (LongIdentWithDots (moduleName :: [methodName], _)) ->
-        moduleName.idText = "Interop" && methodName.idText = "attr"
-    | _ -> false
+    | (LongIdentWithDots (ls, _)) -> ls |> List.map (fun x -> x.idText)
 
+let isInteropCall ld =
+    match longIndentWithDotsToLs ld with
+    | "Interop" :: [ "attr" ] -> true
+    | _ -> false
 
 let rec replaceInteropInExpr =
     function
     | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
-        let newFuncExpr = replaceInteropInExpr funcExpr
+        let newFuncExpr =
+            replaceInteropInExpr funcExpr
+
         SynExpr.App(exprAtomicFlag, isInfix, newFuncExpr, argExpr, range)
     | SynExpr.LongIdent (isOptional, longDotId, altNameRefCall, range) ->
         let output =
             if isInteropCall longDotId then
-                let newAttr = LongIdentWithDots.Create(["CustomInterop"; "test"])
+                let newAttr =
+                    LongIdentWithDots.Create([ "CustomInterop"; "test" ])
+
                 SynExpr.LongIdent(isOptional, newAttr, altNameRefCall, range)
             else
                 SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
+
         output
     | item -> item
 
@@ -86,6 +102,7 @@ let replaceInteropInSynBinding
                  synBindingTrivia))
     =
     let newExpr = replaceInteropInExpr synExpr
+
     (SynBinding(
         synAccessOption,
         synBindingKind,
@@ -105,6 +122,44 @@ let replaceInteropInSynBinding
 let replaceInteropInMember =
     function
     | SynMemberDefn.Member (dnf, range) ->
-        let newMember = replaceInteropInSynBinding dnf
-        SynMemberDefn.Member(newMember, Range.Zero)
+        SynMemberDefn.Member(replaceInteropInSynBinding dnf, Range.Zero)
     | item -> item
+
+let extractArgNames =
+    function
+    | SynExpr.TypeApp (synExpr, lessRange, typeArgs, commaRanges, greaterRange, typeArgsRange, range) ->
+        typeArgs
+        |> List.collect (fun x ->
+            match x with
+            | SynType.LongIdent (longDotId) -> longIndentWithDotsToLs longDotId
+            | _ -> [])
+    | _ -> []
+
+let rec getExtensions (attr: SynAttribute) =
+    match attr.ArgExpr with
+    | SynExpr.Paren (synExpr, _, _, _) ->
+        match synExpr with
+        | SynExpr.Tuple (_, exprs, _, _) ->
+            exprs
+            |> List.map (extractArgNames >> List.head)
+        | _ -> []
+    | _ -> []
+
+let removeAttribute<'a> (SynTypeDefn(synComponentInfo,  _typeDefRepr, _memberDefs, _implicitCtor,_range ,_trivia))  =
+    let newAttrs (attrs: SynAttributes) =
+        attrs
+        |> List.map (fun n -> n.changeAttributes (List.filter (typeNameMatches typeof<'a> >> (not))))
+    (SynTypeDefn(synComponentInfo.changeAttributes newAttrs,  _typeDefRepr, _memberDefs, _implicitCtor,_range ,_trivia))
+
+let extendComponent (lookup: Map<string, SynTypeDefn>) cmp  =
+    match getAttribute<Generator.ExtendsMethodsAttribute> cmp with
+    | None -> cmp
+    | Some (attr) ->
+        let exts = getExtensions attr
+        List.fold (fun cmp ext ->
+            match lookup.TryFind(ext) with
+            | Some(tp) ->
+                let members = getStaticMembers tp
+                modifyStaticMembers (List.append members) cmp
+            | None -> cmp
+        ) (removeAttribute<Generator.ExtendsMethodsAttribute> cmp) exts

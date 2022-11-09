@@ -7,3 +7,16 @@
 
 namespace hello
 
+module example1 =
+    [<Generator.Component("button")>]
+    type ButtonMethods() =
+        static member inline children(elements: string list) =
+            unbox<Interop.inlined> (prop.children elements)
+
+        static member inline classNames(value: string) = Interop.attr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.attr "className" (String.concat " " names)
+
+        static member inline disabled(value: bool) = Interop.attr "disabled" value
+
