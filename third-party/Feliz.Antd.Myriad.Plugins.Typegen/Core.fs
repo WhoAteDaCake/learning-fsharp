@@ -32,7 +32,8 @@ let sortTypes acc (_, types) =
             elif hasAttribute<Generator.IncludedAttribute> (typeDef) then
                 (typeDef :: included, methods, components)
             else
-                (included, methods, components))
+                (included, methods, components)
+        )
         acc
 
 

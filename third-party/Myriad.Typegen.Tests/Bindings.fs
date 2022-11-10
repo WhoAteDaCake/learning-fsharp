@@ -31,15 +31,7 @@ type Layout =
       Content: obj
       Footer: obj }
 
-[<
-    Generator.Component("button");
-    Generator.ExtendsMethods(
-        typeof<WithClass>,
-        // typeof<WithClassTest>,
-        typeof<WithChildren>
-    )
->]
+[<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithClassTest>, typeof<WithChildren>)>]
 type button() =
-    static member inline componentImport() =
-        (import<Layout> "Layout" "antd").Header
+    static member inline componentImport() = (import<Layout> "Layout" "antd").Header
     static member inline disabled(value: bool) = Interop.attr "disabled" value

@@ -36,15 +36,25 @@ type Example() =
                     |> List.map (fun m -> (Core.typeName m, m))
                 )
 
-            let filledComponents = components |> List.map (Core.extendComponent methodMap)
-            let test1 =
-                Core.modifyStaticMembers (fun m -> m |> List.map Core.replaceInteropInMember) methods[1]
+            let filledComponents =
+                components
+                |> List.map (Core.extendComponent methodMap)
+            // let test1 =
+            //     Core.modifyStaticMembers (fun m -> m |> List.map Core.replaceInteropInMember) methods[1]
 
             let componentInfo =
                 SynComponentInfo.Create [ Ident.Create "example1" ]
 
+            let allTypes =
+                (List.map Core.removeAttribute<Generator.IncludedAttribute> included)
+                @ filledComponents
+
             let nestedModule =
-                SynModuleDecl.CreateNestedModule(componentInfo, [ SynModuleDecl.Types(filledComponents, Range.Zero) ])
+                SynModuleDecl.CreateNestedModule(
+                    componentInfo,
+                    allTypes
+                    |> List.map (fun t -> SynModuleDecl.Types([ t ], Range.Zero))
+                )
 
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(Ident.CreateLong "hello", decls = [ nestedModule ])

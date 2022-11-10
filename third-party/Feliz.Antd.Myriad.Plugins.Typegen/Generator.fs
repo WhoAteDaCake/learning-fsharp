@@ -4,7 +4,7 @@ open System
 
 [<RequireQualifiedAccess>]
 module Generator =
-    type ComponentAttribute(name: string) =
+    type ComponentAttribute() =
         inherit Attribute()
 
     type ExtendsMethodsAttribute([<ParamArray>] toInherit: Type array) =
