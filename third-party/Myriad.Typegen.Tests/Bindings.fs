@@ -2,6 +2,7 @@ module Myriad.Typegen.Tests.Bindings
 
 open Myriad.Typegen.Tests.Base
 open Myriad.Plugins
+open Fable.Core.JsInterop
 
 
 [<Generator.Methods>]
@@ -23,6 +24,13 @@ type WithChildren =
     static member inline children(elements: string list) =
         unbox<Interop.inlined> (prop.children elements)
 
+
+[<Generator.Included>]
+type Layout =
+    { Header: obj
+      Content: obj
+      Footer: obj }
+
 [<
     Generator.Component("button");
     Generator.ExtendsMethods(
@@ -31,5 +39,7 @@ type WithChildren =
         typeof<WithChildren>
     )
 >]
-type ButtonMethods() =
+type button() =
+    static member inline componentImport() =
+        (import<Layout> "Layout" "antd").Header
     static member inline disabled(value: bool) = Interop.attr "disabled" value
