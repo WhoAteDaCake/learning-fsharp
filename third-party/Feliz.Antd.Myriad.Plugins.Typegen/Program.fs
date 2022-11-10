@@ -38,9 +38,10 @@ type Example() =
 
             let filledComponents =
                 components
-                |> List.map (Core.extendComponent methodMap)
-            // let test1 =
-            //     Core.modifyStaticMembers (fun m -> m |> List.map Core.replaceInteropInMember) methods[1]
+                |> List.map (fun c ->
+                    let cmp = Core.extendComponent methodMap c
+                    let name = Core.typeName cmp
+                    cmp)
 
             let componentInfo =
                 SynComponentInfo.Create [ Ident.Create "example1" ]
