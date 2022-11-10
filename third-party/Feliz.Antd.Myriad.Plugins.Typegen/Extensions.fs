@@ -6,6 +6,13 @@ open FSharp.Compiler.Text
 open FSharp.Compiler.Xml
 
 
+type Ident with
+    static member Create(name) = Ident(name, Range.Zero)
+
+type SynTypeDefnRepr with
+    static member Create(name) = Ident(name, Range.Zero)
+
+
 type SynComponentInfo with
     static member Create(longId, ?typeParams, ?preferPostFix, ?accessibility, ?attributes, ?constrains) =
         SynComponentInfo(
@@ -46,10 +53,16 @@ type SynAttributeList with
         { this with Attributes = fn this.Attributes }
 
 type SynTypeDefn with
-    static member CreateOfName(name) = SynTypeDefn.Create(SynComponentInfo())
+    static member Simple(name) =
+        SynTypeDefn.Create(
+            SynComponentInfo.Create(name), SynTypeDefnRepr.Simple())
 
     static member Create(typeInfo, typeRepr, ?members, ?implicitConstructor, ?trivia) =
-        let trivia =
+        SynTypeDefn(
+            typeInfo,
+            typeRepr,
+            defaultArg members [],
+            implicitConstructor,
+            Range.Zero,
             defaultArg trivia SynTypeDefnTrivia.Zero
-
-        SynTypeDefn(typeInfo, typeRepr, defaultArg members [], implicitConstructor, Range.Zero, trivia)
+        )
