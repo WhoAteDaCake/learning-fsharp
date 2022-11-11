@@ -53,9 +53,11 @@ type SynAttributeList with
         { this with Attributes = fn this.Attributes }
 
 type SynTypeDefn with
-    static member Simple(name) =
+    static member Simple(name: string) =
         SynTypeDefn.Create(
-            SynComponentInfo.Create(name), SynTypeDefnRepr.ObjectModel(SynTypeDefnKind.Interface, [], Range.Zero))
+            SynComponentInfo.Create(Ident.Create(name) :: []),
+            SynTypeDefnRepr.ObjectModel(SynTypeDefnKind.Interface, [], Range.Zero)
+        )
 
     static member Create(typeInfo, typeRepr, ?members, ?implicitConstructor, ?trivia) =
         SynTypeDefn(

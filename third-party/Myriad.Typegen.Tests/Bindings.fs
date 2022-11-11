@@ -34,8 +34,11 @@ type Layout =
 [<Generator.Component;
   Generator.ExtendsMethods(typeof<WithClass>,
                            //
-                           typeof<WithClassTest>,
+                           // typeof<WithClassTest>,
                            typeof<WithChildren>)>]
 type button() =
     static member inline componentImport() = (import<Layout> "Layout" "antd").Header
     static member inline disabled(value: bool) = Interop.attr "disabled" value
+
+
+let inline mkButtonAttr (key: string) (value: obj) : obj = unbox (key, value)

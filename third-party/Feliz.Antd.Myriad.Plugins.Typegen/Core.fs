@@ -32,8 +32,7 @@ let sortTypes acc (_, types) =
             elif hasAttribute<Generator.IncludedAttribute> (typeDef) then
                 (typeDef :: included, methods, components)
             else
-                (included, methods, components)
-        )
+                (included, methods, components))
         acc
 
 
@@ -122,8 +121,7 @@ let replaceInteropInSynBinding
 
 let replaceInteropInMember =
     function
-    | SynMemberDefn.Member (dnf, range) ->
-        SynMemberDefn.Member(replaceInteropInSynBinding dnf, Range.Zero)
+    | SynMemberDefn.Member (dnf, range) -> SynMemberDefn.Member(replaceInteropInSynBinding dnf, Range.Zero)
     | item -> item
 
 let extractArgNames =
@@ -140,27 +138,73 @@ let rec getExtensions (attr: SynAttribute) =
     match attr.ArgExpr with
     | SynExpr.Paren (synExpr, _, _, _) ->
         match synExpr with
-        | SynExpr.Tuple (_, exprs, _, _) ->
-            exprs
-            |> List.map (extractArgNames >> List.head)
+        | SynExpr.Tuple (_, exprs, _, _) -> exprs |> List.map (extractArgNames >> List.head)
         | _ -> []
     | _ -> []
 
-let removeAttribute<'a> (SynTypeDefn(synComponentInfo,  _typeDefRepr, _memberDefs, _implicitCtor,_range ,_trivia))  =
+let removeAttribute<'a> (SynTypeDefn (synComponentInfo, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
     let newAttrs (attrs: SynAttributes) =
         attrs
         |> List.map (fun n -> n.changeAttributes (List.filter (typeNameMatches typeof<'a> >> (not))))
-    (SynTypeDefn(synComponentInfo.changeAttributes newAttrs,  _typeDefRepr, _memberDefs, _implicitCtor,_range ,_trivia))
 
-let extendComponent (lookup: Map<string, SynTypeDefn>) cmp  =
+    (SynTypeDefn(synComponentInfo.changeAttributes newAttrs, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia))
+
+let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
     match getAttribute<Generator.ExtendsMethodsAttribute> cmp with
     | None -> cmp
     | Some (attr) ->
         let exts = getExtensions attr
-        List.fold (fun cmp ext ->
-            match lookup.TryFind(ext) with
-            | Some(tp) ->
-                let members = getStaticMembers tp
-                modifyStaticMembers (List.append members) cmp
-            | None -> cmp
-        ) (removeAttribute<Generator.ExtendsMethodsAttribute> cmp) exts
+
+        List.fold
+            (fun cmp ext ->
+                match lookup.TryFind(ext) with
+                | Some (tp) ->
+                    let members = getStaticMembers tp
+                    modifyStaticMembers (List.append members) cmp
+                | None -> cmp)
+            (removeAttribute<Generator.ExtendsMethodsAttribute> cmp)
+            exts
+
+
+// let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
+let createAttr (name: string) =
+    let returnType =
+        SynType.CreateLongIdent(name)
+
+    let returnInfo =
+        SynBindingReturnInfo.Create(returnType)
+
+    let keyType =
+        SynExpr.CreateIdentString("key")
+
+    let valueType =
+        SynExpr.CreateIdentString("value")
+
+    let expr =
+        SynExpr.Typed(
+            SynExpr.CreateApp(
+                SynExpr.CreateIdentString("unbox"),
+                SynExpr.CreateParen(SynExpr.CreateTuple([ keyType; valueType ]))
+            ),
+            returnType,
+            range0
+        )
+
+    let valData =
+        let keyInfo =
+            SynArgInfo.CreateIdString "key"
+
+        let valueInfo =
+            SynArgInfo.CreateIdString "value"
+
+        let valInfo =
+            SynValInfo.SynValInfo([ [ keyInfo; valueInfo ] ], SynArgInfo.Empty)
+
+        SynValData.SynValData(None, valInfo, None)
+
+
+    SynModuleDecl.Let(
+        false,
+        [ SynBinding.Let(isInline = true, returnInfo = returnInfo, expr = expr, valData = valData) ],
+        range0
+    )

@@ -13,6 +13,7 @@ open Myriad.Core.Ast
 open FSharp.Compiler.Text.Range
 open FSharp.Compiler.SyntaxTrivia
 open Feliz.Antd.Myriad.Plugins.Typegen
+open Feliz.Antd.Myriad.Plugins.Typegen.Extensions
 
 
 [<MyriadGenerator("Feliz.Antd.typegen")>]
@@ -36,11 +37,21 @@ type Example() =
                     |> List.map (fun m -> (Core.typeName m, m))
                 )
 
+            // let interopModule = SynModuleDecl.CreateNestedModule()
+
             let filledComponents =
                 components
                 |> List.map (fun c ->
                     let cmp = Core.extendComponent methodMap c
                     let name = Core.typeName cmp
+
+                    // TODO: append to list to accumulate
+                    let cmpInterface =
+                        SynTypeDefn.Simple($"I{name.ToUpper()}Property")
+                    // TODO: new declaration
+                    let attr =
+                        Core.createAttr ($"I{name.ToUpper()}Attr")
+
                     cmp)
 
             let componentInfo =
