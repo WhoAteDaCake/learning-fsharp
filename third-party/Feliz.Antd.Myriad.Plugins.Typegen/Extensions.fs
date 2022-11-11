@@ -55,7 +55,7 @@ type SynAttributeList with
 type SynTypeDefn with
     static member Simple(name) =
         SynTypeDefn.Create(
-            SynComponentInfo.Create(name), SynTypeDefnRepr.Simple())
+            SynComponentInfo.Create(name), SynTypeDefnRepr.ObjectModel(SynTypeDefnKind.Interface, [], Range.Zero))
 
     static member Create(typeInfo, typeRepr, ?members, ?implicitConstructor, ?trivia) =
         SynTypeDefn(
