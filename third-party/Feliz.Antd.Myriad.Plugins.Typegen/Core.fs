@@ -71,14 +71,12 @@ let rec replaceInteropInExpr newCall =
     | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
         SynExpr.App(exprAtomicFlag, isInfix, replaceInteropInExpr newCall funcExpr, argExpr, range)
     | SynExpr.LongIdent (isOptional, longDotId, altNameRefCall, range) ->
-        let output =
+        let longDotId =
             if isInteropCall longDotId then
-                let newAttr =
-                    LongIdentWithDots.Create([ "Interop"; newCall ])
-                SynExpr.LongIdent(isOptional, newAttr, altNameRefCall, range)
+                LongIdentWithDots.Create([ "Interop"; newCall ])
             else
-                SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
-        output
+                longDotId
+        SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
     | item -> item
 
 let replaceInteropInSynBinding newCall
