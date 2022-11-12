@@ -66,27 +66,22 @@ let isInteropCall ld =
     | "Interop" :: [ "attr" ] -> true
     | _ -> false
 
-let rec replaceInteropInExpr =
+let rec replaceInteropInExpr newCall =
     function
     | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
-        let newFuncExpr =
-            replaceInteropInExpr funcExpr
-
-        SynExpr.App(exprAtomicFlag, isInfix, newFuncExpr, argExpr, range)
+        SynExpr.App(exprAtomicFlag, isInfix, replaceInteropInExpr newCall funcExpr, argExpr, range)
     | SynExpr.LongIdent (isOptional, longDotId, altNameRefCall, range) ->
         let output =
             if isInteropCall longDotId then
                 let newAttr =
-                    LongIdentWithDots.Create([ "CustomInterop"; "test" ])
-
+                    LongIdentWithDots.Create([ "Interop"; newCall ])
                 SynExpr.LongIdent(isOptional, newAttr, altNameRefCall, range)
             else
                 SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
-
         output
     | item -> item
 
-let replaceInteropInSynBinding
+let replaceInteropInSynBinding newCall
     (SynBinding (synAccessOption,
                  synBindingKind,
                  isInline,
@@ -101,8 +96,6 @@ let replaceInteropInSynBinding
                  debugPointAtBinding,
                  synBindingTrivia))
     =
-    let newExpr = replaceInteropInExpr synExpr
-
     (SynBinding(
         synAccessOption,
         synBindingKind,
@@ -113,15 +106,15 @@ let replaceInteropInSynBinding
         synValData,
         headPat,
         synBindingReturnInfoOption,
-        newExpr,
+        replaceInteropInExpr newCall synExpr,
         Range.Zero,
         debugPointAtBinding,
         synBindingTrivia
     ))
 
-let replaceInteropInMember =
+let replaceInteropInMember newCall =
     function
-    | SynMemberDefn.Member (dnf, range) -> SynMemberDefn.Member(replaceInteropInSynBinding dnf, Range.Zero)
+    | SynMemberDefn.Member (dnf, range) -> SynMemberDefn.Member(replaceInteropInSynBinding newCall dnf, Range.Zero)
     | item -> item
 
 let extractArgNames =

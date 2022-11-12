@@ -6,14 +6,14 @@
 
 
 namespace hello
-//
-// type IButtonProperty =
-//     interface
-//     end
-//
-// module Interop =
-//     let inline makeButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
-//
+
+type IButtonProperty =
+    interface
+    end
+
+module Interop =
+    let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
+
 // module example1 =
 //
 //     type Layout =
@@ -26,16 +26,14 @@ namespace hello
 //         static member inline children(elements: string list) =
 //             unbox<Interop.inlined> (prop.children elements)
 //
-//         static member inline classNames(value: string) = Interop.attr "className" value
+//         static member inline classNames(value: string) =
+//             CustomInterop.mkButtonAttr "className" value
 //
 //         static member inline className(names: seq<string>) =
-//             Interop.attr "className" (String.concat " " names)
-//
-//         static member inline classNames(value: string) = Interop.attr "className" value
-//
-//         static member inline className(names: seq<string>) =
-//             Interop.attr "className" (String.concat " " names)
+//             CustomInterop.mkButtonAttr "className" (String.concat " " names)
 //
 //         static member inline componentImport() = (import<Layout> "Layout" "antd").Header
-//         static member inline disabled(value: bool) = Interop.attr "disabled" value
-
+//
+//         static member inline disabled(value: bool) =
+//             CustomInterop.mkButtonAttr "disabled" value
+//

@@ -37,12 +37,10 @@ type Example() =
                     |> List.map (fun m -> (Core.typeName m, m))
                 )
 
-            // let interopModule = SynModuleDecl.CreateNestedModule()
-
             let (filledComponents, interfaces, attributes) =
                 components
                 |> List.fold (fun (components, interfaces, attributes) c ->
-                    let cmp = Core.extendComponent methodMap c
+                    let cmp = (Core.extendComponent methodMap c)
                     let name = Core.typeName cmp
 
                     let newName = name.Substring(0, 1).ToUpper() + name.Substring(1)
@@ -51,8 +49,12 @@ type Example() =
                     let cmpInterface =
                         SynTypeDefn.Simple(propertyName)
 
+                    let attrName = $"mk{newName}Attr"
                     let attr =
-                        Core.createAttr propertyName $"mk{newName}Attr"
+                        Core.createAttr propertyName attrName
+
+                    let cmp = Core.modifyStaticMembers (List.map (Core.replaceInteropInMember attrName)) cmp
+
                     (cmp :: components, cmpInterface :: interfaces, attr :: attributes)
                 ) ([], [], [])
 
