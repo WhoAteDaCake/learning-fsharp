@@ -34,7 +34,7 @@ type Layout =
 [<Generator.Component;
   Generator.ExtendsMethods(typeof<WithClass>,
                            //
-                           // typeof<WithClassTest>,
+                           typeof<WithClassTest>,
                            typeof<WithChildren>)>]
 type button() =
     static member inline componentImport() = (import<Layout> "Layout" "antd").Header

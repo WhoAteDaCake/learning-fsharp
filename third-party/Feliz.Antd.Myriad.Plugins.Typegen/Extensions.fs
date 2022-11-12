@@ -12,6 +12,9 @@ type Ident with
 type SynTypeDefnRepr with
     static member Create(name) = Ident(name, Range.Zero)
 
+type SynArgPats with
+    static member Empty =
+        SynArgPats.Pats[]
 
 type SynComponentInfo with
     static member Create(longId, ?typeParams, ?preferPostFix, ?accessibility, ?attributes, ?constrains) =
@@ -68,3 +71,5 @@ type SynTypeDefn with
             Range.Zero,
             defaultArg trivia SynTypeDefnTrivia.Zero
         )
+
+

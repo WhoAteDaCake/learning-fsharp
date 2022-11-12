@@ -167,9 +167,9 @@ let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
 
 
 // let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
-let createAttr (name: string) =
+let createAttr (returnTypeName: string) (fnName: string) =
     let returnType =
-        SynType.CreateLongIdent(name)
+        SynType.CreateLongIdent(returnTypeName)
 
     let returnInfo =
         SynBindingReturnInfo.Create(returnType)
@@ -202,9 +202,21 @@ let createAttr (name: string) =
 
         SynValData.SynValData(None, valInfo, None)
 
+    let pattern =
+        let makeArgType (argName: string, argType: string) =
+            SynPat.CreateParen(
+                SynPat.CreateTyped(
+                    SynPat.CreateNamed(Ident(argName, range0)),
+                    SynType.CreateLongIdent argType
+                )
+            )
+        SynPat.CreateLongIdent(
+            id = LongIdentWithDots.Create([fnName]),
+            args = ([("key", "string"); ("value", "obj")] |> List.map makeArgType)
+        )
 
     SynModuleDecl.Let(
         false,
-        [ SynBinding.Let(isInline = true, returnInfo = returnInfo, expr = expr, valData = valData) ],
+        [ SynBinding.Let(isInline = true, returnInfo = returnInfo, expr = expr, valData = valData, pattern=pattern) ],
         range0
     )

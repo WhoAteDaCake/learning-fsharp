@@ -39,21 +39,31 @@ type Example() =
 
             // let interopModule = SynModuleDecl.CreateNestedModule()
 
-            let filledComponents =
+            let (filledComponents, interfaces, attributes) =
                 components
-                |> List.map (fun c ->
+                |> List.fold (fun (components, interfaces, attributes) c ->
                     let cmp = Core.extendComponent methodMap c
                     let name = Core.typeName cmp
 
-                    // TODO: append to list to accumulate
+                    let newName = name.Substring(0, 1).ToUpper() + name.Substring(1)
+                    let propertyName = $"I{newName}Property"
+
                     let cmpInterface =
-                        SynTypeDefn.Simple($"I{name.ToUpper()}Property")
-                    // TODO: new declaration
+                        SynTypeDefn.Simple(propertyName)
+
                     let attr =
-                        Core.createAttr ($"I{name.ToUpper()}Attr")
+                        Core.createAttr propertyName $"mk{newName}Attr"
+                    (cmp :: components, cmpInterface :: interfaces, attr :: attributes)
+                ) ([], [], [])
 
-                    cmp)
+            let interfaceDecl =
+                SynModuleDecl.Types(interfaces, range0)
 
+            let interopModule =
+                SynModuleDecl.CreateNestedModule(
+                    SynComponentInfo.Create [ Ident.Create "Interop" ],
+                    attributes
+                )
             let componentInfo =
                 SynComponentInfo.Create [ Ident.Create "example1" ]
 
@@ -69,6 +79,8 @@ type Example() =
                 )
 
             let namespaceOrModule =
-                SynModuleOrNamespace.CreateNamespace(Ident.CreateLong "hello", decls = [ nestedModule ])
+                SynModuleOrNamespace.CreateNamespace(Ident.CreateLong "hello", decls = [
+                    interfaceDecl; interopModule; nestedModule
+                ])
 
             Output.Ast [ namespaceOrModule ]
