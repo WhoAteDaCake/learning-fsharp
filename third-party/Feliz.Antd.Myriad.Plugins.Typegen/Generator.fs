@@ -18,3 +18,6 @@ module Generator =
     /// A marker to include an additional type
     type IncludedAttribute() =
         inherit Attribute()
+
+    type CoreModuleAttribute() =
+        inherit Attribute()

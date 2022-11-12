@@ -41,4 +41,6 @@ type button() =
     static member inline disabled(value: bool) = Interop.attr "disabled" value
 
 
-let inline mkButtonAttr (key: string) (value: obj) : obj = unbox (key, value)
+module Antd =
+    begin
+    end

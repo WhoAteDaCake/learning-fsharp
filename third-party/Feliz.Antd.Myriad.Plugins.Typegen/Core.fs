@@ -55,8 +55,6 @@ let modifyStaticMembers
 
     SynTypeDefn(synComponentInfo, newTypeDefn, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
 
-// let isInteropMethod )
-
 let longIndentWithDotsToLs =
     function
     | (LongIdentWithDots (ls, _)) -> ls |> List.map (fun x -> x.idText)
