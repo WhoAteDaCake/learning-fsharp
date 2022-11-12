@@ -131,13 +131,6 @@ let rec getExtensions (attr: SynAttribute) =
         | _ -> []
     | _ -> []
 
-let removeAttribute<'a> (SynTypeDefn (synComponentInfo, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
-    let newAttrs (attrs: SynAttributes) =
-        attrs
-        |> List.map (fun n -> n.changeAttributes (List.filter (typeNameMatches typeof<'a> >> (not))))
-
-    (SynTypeDefn(synComponentInfo.changeAttributes newAttrs, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia))
-
 let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
     match getAttribute<Generator.ExtendsMethodsAttribute> cmp with
     | None -> cmp
@@ -151,7 +144,7 @@ let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
                     let members = getStaticMembers tp
                     modifyStaticMembers (List.append members) cmp
                 | None -> cmp)
-            (removeAttribute<Generator.ExtendsMethodsAttribute> cmp)
+            (cmp.removeAttribute<Generator.ExtendsMethodsAttribute> ())
             exts
 
 
@@ -209,3 +202,14 @@ let createAttr (returnTypeName: string) (fnName: string) =
         [ SynBinding.Let(isInline = true, returnInfo = returnInfo, expr = expr, valData = valData, pattern=pattern) ],
         range0
     )
+
+let findRoot (ast: ParsedInput) =
+    let isRootDecl = function
+    | SynModuleDecl.NestedModule(synComponentInfo, _, _, _, _, _) ->
+        synComponentInfo.hasAttribute<Generator.RootModuleAttribute>()
+    | _ -> false
+
+    match ast with
+    | ParsedInput.ImplFile(ParsedImplFileInput(_name, _isScript, _qualifiedNameOfFile, _scopedPragmas, _hashDirectives, modules, _g)) ->
+        modules[0].decls() |> List.find isRootDecl
+    | _ -> failwith "Could not parse AST"

@@ -19,5 +19,5 @@ module Generator =
     type IncludedAttribute() =
         inherit Attribute()
 
-    type CoreModuleAttribute() =
+    type RootModuleAttribute() =
         inherit Attribute()

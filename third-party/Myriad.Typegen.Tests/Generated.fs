@@ -14,26 +14,33 @@ type IButtonProperty =
 module Interop =
     let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
 
-// module example1 =
-//
-//     type Layout =
-//         { Header: obj
-//           Content: obj
-//           Footer: obj }
-//
-//     [<Generator.Component>]
-//     type button() =
-//         static member inline children(elements: string list) =
-//             unbox<Interop.inlined> (prop.children elements)
-//
-//         static member inline classNames(value: string) =
-//             CustomInterop.mkButtonAttr "className" value
-//
-//         static member inline className(names: seq<string>) =
-//             CustomInterop.mkButtonAttr "className" (String.concat " " names)
-//
-//         static member inline componentImport() = (import<Layout> "Layout" "antd").Header
-//
-//         static member inline disabled(value: bool) =
-//             CustomInterop.mkButtonAttr "disabled" value
-//
+module example1 =
+
+    type Layout =
+        { Header: obj
+          Content: obj
+          Footer: obj }
+
+    [<Generator.Component>]
+    type button() =
+        static member inline children(elements: string list) =
+            unbox<Interop.inlined> (prop.children elements)
+
+        static member inline classNames(value: string) = Interop.mkButtonAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkButtonAttr "className" (String.concat " " names)
+
+        static member inline classNames(value: string) = Interop.mkButtonAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkButtonAttr "className" (String.concat " " names)
+
+        static member inline create() = (import<Layout> "Layout" "antd").Header
+        static member inline disabled(value: bool) = Interop.mkButtonAttr "disabled" value
+
+[<Erase>]
+
+module Antd =
+
+

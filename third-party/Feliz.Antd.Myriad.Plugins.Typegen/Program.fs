@@ -27,6 +27,10 @@ type Example() =
                 |> Async.RunSynchronously
                 |> Array.head
 
+            let rootModule = (Core.findRoot ast)
+                                 .appendAttribute("Erase")
+                                 .removeAttribute<Generator.RootModuleAttribute>()
+
             let included, methods, components =
                 (extractTypeDefn ast)
                 |> List.fold Core.sortTypes ([], [], [])
@@ -70,7 +74,7 @@ type Example() =
                 SynComponentInfo.Create [ Ident.Create "example1" ]
 
             let allTypes =
-                (List.map Core.removeAttribute<Generator.IncludedAttribute> included)
+                (included |> List.map (fun n -> n.removeAttribute<Generator.IncludedAttribute>()))
                 @ filledComponents
 
             let nestedModule =
@@ -82,7 +86,7 @@ type Example() =
 
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(Ident.CreateLong "hello", decls = [
-                    interfaceDecl; interopModule; nestedModule
+                    interfaceDecl; interopModule; nestedModule; rootModule
                 ])
 
             Output.Ast [ namespaceOrModule ]
