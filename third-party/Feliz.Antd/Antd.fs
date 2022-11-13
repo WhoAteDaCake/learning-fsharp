@@ -1,6 +1,5 @@
 ﻿namespace Feliz
 
-open Feliz
 open Fable.Core
 open Fable.Core.JsInterop
 open Feliz.AntdReact

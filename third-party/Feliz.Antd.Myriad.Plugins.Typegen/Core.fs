@@ -163,26 +163,6 @@ let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
             (cmp.removeAttribute<Generator.ExtendsMethodsAttribute> ())
             exts
 
-let findRoot (ast: ParsedInput) =
-    let isRootDecl =
-        function
-        | SynModuleDecl.NestedModule (synComponentInfo, _, _, _, _, _) ->
-            synComponentInfo.hasAttribute<Generator.RootModuleAttribute> ()
-        | _ -> false
-
-    match ast with
-    | ParsedInput.ImplFile (ParsedImplFileInput (_name,
-                                                 _isScript,
-                                                 _qualifiedNameOfFile,
-                                                 _scopedPragmas,
-                                                 _hashDirectives,
-                                                 modules,
-                                                 _g)) ->
-        modules[ 0 ].decls ()
-        |> List.find isRootDecl
-        |> Some
-    | _ -> None
-
 let findAndRemove (name: string) (ls: SynMemberDefns) =
     let findCreate (m: SynMemberDefn) =
         match m.Ident() with
@@ -194,30 +174,11 @@ let findAndRemove (name: string) (ls: SynMemberDefns) =
 
     found, others
 
-let bindingToModuleLet
-    (SynBinding (_accessibility,
-                 _kind,
-                 isInline,
-                 isMutable,
-                 attributes,
-                 _xmlDoc,
-                 valData,
-                 headPat,
-                 returnInfo,
-                 expr,
-                 _range,
-                 _debugPoint,
-                 _trivia))
-    =
-    let xmldoc = PreXmlDoc.Empty
-    // let expr = defaultArg expr (SynExpr.CreateTyped(SynExpr.CreateNull, SynType.CreateUnit))
-    let bind = DebugPointAtBinding.NoneAtLet
-    let trivia = { LetKeyword = Some range0
-                   EqualsRange = Some range0 }
+let bindingToModuleLet binding =
     SynModuleDecl.Let(
         false,
         [
-             SynBinding.SynBinding(None, SynBindingKind.Normal, isInline, isMutable, attributes, xmldoc, valData, headPat, returnInfo, expr, range0, bind, trivia)
+             binding
         ],
         range0
     )

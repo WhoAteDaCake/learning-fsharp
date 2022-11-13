@@ -19,5 +19,5 @@ module Generator =
     type IncludedAttribute() =
         inherit Attribute()
 
-    type RootModuleAttribute() =
+    type LibraryRootAttribute() =
         inherit Attribute()

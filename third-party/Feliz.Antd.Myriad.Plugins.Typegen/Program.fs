@@ -39,75 +39,79 @@ type Example() =
 
             let filledComponents, interfaces, attributes, creations =
                 components
-                |> List.fold (fun (components, interfaces, attributes, creations) c ->
-                    let cmp = (Core.extendComponent methodMap c).appendAttribute("Erase")
+                |> List.fold
+                    (fun (components, interfaces, attributes, creations) c ->
+                        let cmp =
+                            (Core.extendComponent methodMap c)
+                                .appendAttribute("Erase")
+                                .removeAttribute<Generator.ComponentAttribute> ()
 
-                    // Extract creation method here
-                    let action, cmp = Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
-                    let name = Core.typeName cmp
+                        // Extract creation method here
+                        let action, cmp =
+                            Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
 
-                    let creation =
-                        match Option.map (fun (m: SynMemberDefn) -> m.Rename name) action with
-                        | Some(mDef) -> mDef
-                        | None -> failwith $"Could not detect creation method for {c}"
+                        let name = Core.typeName cmp
 
-                    let newName = name.Substring(0, 1).ToUpper() + name.Substring(1)
-                    let propertyName = $"I{newName}Property"
+                        let creation =
+                            match Option.map (fun (m: SynMemberDefn) -> m.Rename name) action with
+                            | Some (mDef) -> mDef
+                            | None -> failwith $"Could not detect creation method for {c}"
 
-                    let cmpInterface =
-                        SynTypeDefn.Simple(propertyName)
+                        let newName =
+                            name.Substring(0, 1).ToUpper() + name.Substring(1)
 
-                    let attrName = $"mk{newName}Attr"
-                    let attr =
-                        Builtin.createAttr propertyName attrName
+                        let propertyName = $"I{newName}Property"
 
-                    let cmp = Core.modifyStaticMembers (List.map (Core.replaceInteropInMember attrName)) cmp
+                        let cmpInterface =
+                            SynTypeDefn.Simple(propertyName)
 
-                    (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations)
-                ) ([], [], [], [])
+                        let attrName = $"mk{newName}Attr"
 
+                        let attr =
+                            Builtin.createAttr propertyName attrName
 
-            let rootDecls =
-                creations |> List.map (fun c ->
-                    Core.bindingToModuleLet (c.MemberDefn()))
+                        let cmp =
+                            Core.modifyStaticMembers (List.map (Core.replaceInteropInMember attrName)) cmp
+
+                        (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations))
+                    ([], [], [], [])
 
             let rootModule =
                 let found =
-                    match Core.findRoot ast with
-                    | Some(n) -> n
-                    | None -> failwith "Could not find Root module"
+                    (extractTypeDefn ast)
+                    |> List.collect (fun (_, x) -> x)
+                    |> List.find (fun x -> hasAttribute<Generator.LibraryRootAttribute> x)
 
                 found
                     .appendAttribute("Erase")
-                    .removeAttribute<Generator.RootModuleAttribute>()
-                    .appendMembers(rootDecls)
+                    .removeAttribute<Generator.LibraryRootAttribute>()
+                    .addDefs (creations)
 
             let interfaceDecl =
                 SynModuleDecl.Types(interfaces, range0)
 
             let interopModule =
-                SynModuleDecl.CreateNestedModule(
-                    SynComponentInfo.Create [ Ident.Create "Interop" ],
-                    attributes
-                ).appendAttribute("Erase")
-
-            let componentInfo =
-                SynComponentInfo.Create [ Ident.Create "example1" ]
+                SynModuleDecl
+                    .CreateNestedModule(SynComponentInfo.Create [ Ident.Create "Interop" ], attributes)
+                    .appendAttribute("Erase")
+                    .appendAttribute("RequireQualifiedAccess")
 
             let allTypes =
-                (included |> List.map (fun n -> n.removeAttribute<Generator.IncludedAttribute>()))
+                (included
+                 |> List.map (fun n -> n.removeAttribute<Generator.IncludedAttribute> ()))
                 @ filledComponents
 
-            let nestedModule =
-                SynModuleDecl.CreateNestedModule(
-                    componentInfo,
-                    allTypes
-                    |> List.map (fun t -> SynModuleDecl.Types([ t ], Range.Zero))
-                )
+            // Create separate types to avoid "and" like type declaration
+            let typeDecls =
+                List.map (fun t -> SynModuleDecl.Types([ t ], Range.Zero)) allTypes
 
             let namespaceOrModule =
-                SynModuleOrNamespace.CreateNamespace(Ident.CreateLong "hello", decls = [
-                    interfaceDecl; interopModule; nestedModule; rootModule
-                ])
+                SynModuleOrNamespace.CreateNamespace(
+                    Ident.CreateLong "hello",
+                    decls =
+                        [ interfaceDecl; interopModule ]
+                        @ typeDecls
+                        @ [ SynModuleDecl.Types([ rootModule ], Range.Zero) ]
+                )
 
             Output.Ast [ namespaceOrModule ]

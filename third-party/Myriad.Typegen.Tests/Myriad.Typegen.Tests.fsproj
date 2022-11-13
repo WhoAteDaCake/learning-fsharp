@@ -1,42 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-
-        <IsPackable>false</IsPackable>
-        <GenerateProgramFile>false</GenerateProgramFile>
-        <MyriadSdkVerboseOutput>true</MyriadSdkVerboseOutput>
-        <MyriadSdkWaitForDebugger>true</MyriadSdkWaitForDebugger>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Include="Tests.fs"/>
-        <Compile Include="Bindings.fs"/>
-        <Compile Include="Generated.fs">
-            <MyriadFile>Bindings.fs</MyriadFile>
-            <MyriadNameSpace>Feliz</MyriadNameSpace>
-        </Compile>
-        <Compile Include="Program.fs"/>
-        <Content Include="TODO.md"/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Fable.Core" Version="3.7"/>
-        <PackageReference Include="Myriad.Sdk" Version="0.8.1"/>
-        <PackageReference Include="Myriad.Core" Version="0.8.1"/>
-        <PackageReference Include="Myriad.Plugins" Version="0.8.1"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0"/>
-        <PackageReference Include="xunit" Version="2.4.1"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="3.1.2">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj"/>
-    </ItemGroup>
-    <Import Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props"/>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <MyriadSdkVerboseOutput>true</MyriadSdkVerboseOutput>
+    <MyriadSdkWaitForDebugger>true</MyriadSdkWaitForDebugger>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Tests.fs" />
+    <Compile Include="Bindings.fs" />
+    <Compile Include="Generated.fs">
+      <MyriadFile>Bindings.fs</MyriadFile>
+      <MyriadNameSpace>Feliz</MyriadNameSpace>
+    </Compile>
+    <Compile Include="Program.fs" />
+    <Content Include="TODO.md" />
+    <Content Include="paket.references" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" Version="3.7" />
+    <PackageReference Include="Myriad.Sdk" Version="0.8.1" />
+    <PackageReference Include="Myriad.Core" Version="0.8.1" />
+    <PackageReference Include="Myriad.Plugins" Version="0.8.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj" />
+  </ItemGroup>
+  <Import Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

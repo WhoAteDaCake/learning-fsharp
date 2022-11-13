@@ -132,6 +132,20 @@ type SynTypeDefn with
             _trivia
         ))
 
+    member this.addDefs(defs: SynMemberDefns) =
+        let (SynTypeDefn (synComponentInfo, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
+            this
+
+        (SynTypeDefn(
+            synComponentInfo,
+            _typeDefRepr,
+            _memberDefs @ defs,
+            _implicitCtor,
+            _range,
+            _trivia
+        ))
+
+
 type SynModuleOrNamespace with
     member this.decls() =
         let (SynModuleOrNamespace (_, _, _, decls, _, _, _, _)) =
