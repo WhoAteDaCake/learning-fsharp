@@ -42,6 +42,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "third-party", "third-party", "{A4E13CBF-4DDA-450B-8FA3-E79FCC6FE166}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Feliz.Antd", "third-party\Feliz.Antd\Feliz.Antd.fsproj", "{653B9846-36AA-4FE6-8B7E-8FB025378A45}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4C5C9584-9A83-4BEC-9E1B-AD6D1C91F42A} = {4C5C9584-9A83-4BEC-9E1B-AD6D1C91F42A}
+	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Feliz.Antd.Myriad.Plugins.Typegen", "third-party\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj", "{4C5C9584-9A83-4BEC-9E1B-AD6D1C91F42A}"
 EndProject

@@ -5,16 +5,22 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="Types.fs" />
-        <Compile Include="Interop.fs" />
-        <Compile Include="Extensions\Children.fs" />
-        <Compile Include="Layout\Layout.fs" />
-        <Compile Include="Layout\LayoutHeader.fs" />
-        <Compile Include="Layout\LayoutContent.fs" />
-        <Compile Include="Grid\Row.fs" />
-        <Compile Include="Button.fs" />
-        <Compile Include="Antd.fs" />
-        <Content Include="paket.references" />
+        <Compile Include="Types.fs"/>
+        <Compile Include="Interop.fs"/>
+        <Compile Include="Layout\Layout.fs"/>
+        <Compile Include="Layout\LayoutHeader.fs"/>
+        <Compile Include="Layout\LayoutContent.fs"/>
+        <Compile Include="Grid\Row.fs"/>
+        <Compile Include="Button.fs"/>
+        <Compile Include="Antd.fs"/>
+        <Content Include="paket.references"/>
+        <Compile Include="AntdSource.fs"/>
+        <Compile Include="AntdGenerated.fs">
+            <MyriadFile>AntdSource.fs</MyriadFile>
+        </Compile>
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <ItemGroup>
+        <ProjectReference Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj"/>
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets"/>
 </Project>
