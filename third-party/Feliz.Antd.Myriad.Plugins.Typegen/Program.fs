@@ -27,9 +27,16 @@ type Example() =
                 |> Async.RunSynchronously
                 |> Array.head
 
-            let rootModule = (Core.findRoot ast)
-                                 .appendAttribute("Erase")
-                                 .removeAttribute<Generator.RootModuleAttribute>()
+
+            let rootModule =
+                let found =
+                    match Core.findRoot ast with
+                    | Some(n) -> n
+                    | None -> failwith "Could not find Root module"
+
+                found
+                    .appendAttribute("Erase")
+                    .removeAttribute<Generator.RootModuleAttribute>()
 
             let included, methods, components =
                 (extractTypeDefn ast)
@@ -45,6 +52,10 @@ type Example() =
                 components
                 |> List.fold (fun (components, interfaces, attributes) c ->
                     let cmp = (Core.extendComponent methodMap c)
+
+                    // Extract creation method here
+                    let action, cmp = Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
+
                     let name = Core.typeName cmp
 
                     let newName = name.Substring(0, 1).ToUpper() + name.Substring(1)
@@ -55,7 +66,7 @@ type Example() =
 
                     let attrName = $"mk{newName}Attr"
                     let attr =
-                        Core.createAttr propertyName attrName
+                        Builtin.createAttr propertyName attrName
 
                     let cmp = Core.modifyStaticMembers (List.map (Core.replaceInteropInMember attrName)) cmp
 

@@ -15,6 +15,7 @@ open FSharp.Compiler.Text.Range
 open FSharp.Compiler.SyntaxTrivia
 open Myriad.Plugins
 open Feliz.Antd.Myriad.Plugins.Typegen.Extensions
+open Feliz.Antd.Myriad.Plugins.Typegen.Standard
 
 
 let typeName (SynTypeDefn (typeInfo, _, _, _, _, _)) =
@@ -54,6 +55,19 @@ let modifyStaticMembers
         | _ -> synTypeDefnRepr
 
     SynTypeDefn(synComponentInfo, newTypeDefn, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
+
+let modifyStaticMembers2<'a>
+    (fn: SynMemberDefns -> 'a option * SynMemberDefns)
+    (SynTypeDefn (synComponentInfo, synTypeDefnRepr, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia))
+    =
+    let ret, newTypeDefn =
+        match synTypeDefnRepr with
+        | SynTypeDefnRepr.ObjectModel (kind, members, range) ->
+            let ret, members = fn members
+            ret, SynTypeDefnRepr.ObjectModel(kind, members, range)
+        | _ -> None, synTypeDefnRepr
+
+    ret, SynTypeDefn(synComponentInfo, newTypeDefn, synMemberDefns, synMemberDefnOption, range, synTypeDefnTrivia)
 
 let longIndentWithDotsToLs =
     function
@@ -147,62 +161,6 @@ let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
             (cmp.removeAttribute<Generator.ExtendsMethodsAttribute> ())
             exts
 
-
-// let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
-let createAttr (returnTypeName: string) (fnName: string) =
-    let returnType =
-        SynType.CreateLongIdent(returnTypeName)
-
-    let returnInfo =
-        SynBindingReturnInfo.Create(returnType)
-
-    let keyType =
-        SynExpr.CreateIdentString("key")
-
-    let valueType =
-        SynExpr.CreateIdentString("value")
-
-    let expr =
-        SynExpr.Typed(
-            SynExpr.CreateApp(
-                SynExpr.CreateIdentString("unbox"),
-                SynExpr.CreateParen(SynExpr.CreateTuple([ keyType; valueType ]))
-            ),
-            returnType,
-            range0
-        )
-
-    let valData =
-        let keyInfo =
-            SynArgInfo.CreateIdString "key"
-
-        let valueInfo =
-            SynArgInfo.CreateIdString "value"
-
-        let valInfo =
-            SynValInfo.SynValInfo([ [ keyInfo; valueInfo ] ], SynArgInfo.Empty)
-
-        SynValData.SynValData(None, valInfo, None)
-
-    let pattern =
-        let makeArgType (argName: string, argType: string) =
-            SynPat.CreateParen(
-                SynPat.CreateTyped(
-                    SynPat.CreateNamed(Ident(argName, range0)),
-                    SynType.CreateLongIdent argType
-                )
-            )
-        SynPat.CreateLongIdent(
-            id = LongIdentWithDots.Create([fnName]),
-            args = ([("key", "string"); ("value", "obj")] |> List.map makeArgType)
-        )
-
-    SynModuleDecl.Let(
-        false,
-        [ SynBinding.Let(isInline = true, returnInfo = returnInfo, expr = expr, valData = valData, pattern=pattern) ],
-        range0
-    )
-
 let findRoot (ast: ParsedInput) =
     let isRootDecl = function
     | SynModuleDecl.NestedModule(synComponentInfo, _, _, _, _, _) ->
@@ -211,5 +169,11 @@ let findRoot (ast: ParsedInput) =
 
     match ast with
     | ParsedInput.ImplFile(ParsedImplFileInput(_name, _isScript, _qualifiedNameOfFile, _scopedPragmas, _hashDirectives, modules, _g)) ->
-        modules[0].decls() |> List.find isRootDecl
-    | _ -> failwith "Could not parse AST"
+        modules[0].decls() |> List.find isRootDecl |> Some
+    | _ -> None
+
+let findAndRemove (name: string) (ls: SynMemberDefns) =
+    let findCreate (m: SynMemberDefn) =
+        true
+    let found, others = List.splitWhen findCreate ls
+    found, others

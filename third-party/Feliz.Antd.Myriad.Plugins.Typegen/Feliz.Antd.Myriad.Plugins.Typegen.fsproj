@@ -7,10 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Standard.fs" />
         <Compile Include="Generator.fs" />
         <Compile Include="Interop.fs" />
         <Compile Include="Extensions.fs" />
         <Compile Include="Core.fs" />
+        <Compile Include="Builtin.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
