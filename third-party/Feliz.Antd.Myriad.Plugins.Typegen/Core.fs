@@ -174,6 +174,9 @@ let findRoot (ast: ParsedInput) =
 
 let findAndRemove (name: string) (ls: SynMemberDefns) =
     let findCreate (m: SynMemberDefn) =
-        true
+        match m.Ident() with
+        | Some([ foundName ]) ->
+            foundName = name
+        | _ -> false
     let found, others = List.splitWhen findCreate ls
     found, others

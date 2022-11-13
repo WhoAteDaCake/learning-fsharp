@@ -7,7 +7,7 @@ open FSharp.Compiler.Xml
 open Myriad.Core.Ast
 open Myriad.Core
 
-let removeAttribute<'a> (attrs: SynAttributes): SynAttributes =
+let removeAttribute<'a> (attrs: SynAttributes) : SynAttributes =
     attrs
     |> List.map (fun n ->
         let newAttrs =
@@ -16,11 +16,13 @@ let removeAttribute<'a> (attrs: SynAttributes): SynAttributes =
 
         { n with Attributes = newAttrs })
 
-let appendAttribute (newAttr: string) (attrs: SynAttributes): SynAttributes =
-    let newAttr = SynAttributeList.Create(SynAttribute.Create(newAttr))
+let appendAttribute (newAttr: string) (attrs: SynAttributes) : SynAttributes =
+    let newAttr =
+        SynAttributeList.Create(SynAttribute.Create(newAttr))
+
     newAttr :: attrs
 
-let hasAttributeIn<'a> (attrs: SynAttributes)  =
+let hasAttributeIn<'a> (attrs: SynAttributes) =
     attrs
     |> List.collect (fun n -> n.Attributes)
     |> List.exists (typeNameMatches typeof<'a>)
@@ -122,6 +124,7 @@ type SynModuleOrNamespace with
     member this.decls() =
         let (SynModuleOrNamespace (_, _, _, decls, _, _, _, _)) =
             this
+
         decls
 
     member this.removeAttribute<'a>() =
@@ -139,7 +142,7 @@ type SynModuleOrNamespace with
             range
         )
 
-    member this.appendAttribute (name: string) =
+    member this.appendAttribute(name: string) =
         let (SynModuleOrNamespace (longId, isRecursive, kind, decls, xmlDoc, attributes, accessibility, range)) =
             this
 
@@ -154,26 +157,102 @@ type SynModuleOrNamespace with
             range
         )
 
-    member this.toNested () =
+    member this.toNested() =
         let (SynModuleOrNamespace (longId, _, _, decls, _, _, _, _)) =
             this
+
         SynModuleDecl.CreateNestedModule(
-            ci=SynComponentInfo.Create(longId),
-            decls=decls,
-            isRec=false,
-            isCont=false
+            ci = SynComponentInfo.Create(longId),
+            decls = decls,
+            isRec = false,
+            isCont = false
         )
 
 type SynModuleDecl with
 
-    member this.appendAttribute (name: string) =
+    member this.appendAttribute(name: string) =
         match this with
-        | SynModuleDecl.NestedModule(moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
-            SynModuleDecl.NestedModule(moduleInfo.appendAttribute(name), isRecursive, delcs, isContinuing, range, trivia)
+        | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
+            SynModuleDecl.NestedModule(
+                moduleInfo.appendAttribute (name),
+                isRecursive,
+                delcs,
+                isContinuing,
+                range,
+                trivia
+            )
         | item -> item
 
-    member this.removeAttribute<'a> () =
+    member this.removeAttribute<'a>() =
         match this with
-        | SynModuleDecl.NestedModule(moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
-            SynModuleDecl.NestedModule(moduleInfo.removeAttribute<'a>(), isRecursive, delcs, isContinuing, range, trivia)
+        | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
+            SynModuleDecl.NestedModule(
+                moduleInfo.removeAttribute<'a> (),
+                isRecursive,
+                delcs,
+                isContinuing,
+                range,
+                trivia
+            )
+        | item -> item
+
+type SynPat with
+    member this.Rename(name: string) =
+        match this with
+        | SynPat.LongIdent (_, _propertyKeyword, _extraId, _typarDecls, _argPats, _accessibility, _range) ->
+            SynPat.LongIdent(
+                LongIdentWithDots.CreateString name,
+                _propertyKeyword,
+                _extraId,
+                _typarDecls,
+                _argPats,
+                _accessibility,
+                _range
+            )
+        | item -> item
+
+type SynBinding with
+    member this.Rename(name: string) =
+        let (SynBinding (synAccessOption,
+                         synBindingKind,
+                         isInline,
+                         isMutable,
+                         synAttributeLists,
+                         preXmlDoc,
+                         synValData,
+                         headPat,
+                         synBindingReturnInfoOption,
+                         synExpr,
+                         range,
+                         debugPointAtBinding,
+                         synBindingTrivia)) =
+            this
+
+        SynBinding(
+            synAccessOption,
+            synBindingKind,
+            isInline,
+            isMutable,
+            synAttributeLists,
+            preXmlDoc,
+            synValData,
+            headPat.Rename(name),
+            synBindingReturnInfoOption,
+            synExpr,
+            range,
+            debugPointAtBinding,
+            synBindingTrivia
+        )
+
+type SynMemberDefn with
+    member this.Ident() =
+        match this with
+        | SynMemberDefn.Member (SynBinding.SynBinding(headPat = SynPat.LongIdent(longDotId = LongIdentWithDots (ident, _))),
+                                _) -> Some(List.map (fun (i: Ident) -> i.idText) ident)
+        | _ -> None
+
+    member this.Rename(name: string) =
+        match this with
+        | SynMemberDefn.Member (memberDefn, _range) ->
+            SynMemberDefn.Member(memberDefn.Rename name, _range)
         | item -> item

@@ -48,15 +48,19 @@ type Example() =
                     |> List.map (fun m -> (Core.typeName m, m))
                 )
 
-            let (filledComponents, interfaces, attributes) =
+            let filledComponents, interfaces, attributes, creations =
                 components
-                |> List.fold (fun (components, interfaces, attributes) c ->
+                |> List.fold (fun (components, interfaces, attributes, creations) c ->
                     let cmp = (Core.extendComponent methodMap c)
 
                     // Extract creation method here
                     let action, cmp = Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
-
                     let name = Core.typeName cmp
+
+                    let creation =
+                        match Option.map (fun (m: SynMemberDefn) -> m.Rename name) action with
+                        | Some(mDef) -> mDef
+                        | None -> failwith $"Could not detect creation method for {c}"
 
                     let newName = name.Substring(0, 1).ToUpper() + name.Substring(1)
                     let propertyName = $"I{newName}Property"
@@ -70,8 +74,8 @@ type Example() =
 
                     let cmp = Core.modifyStaticMembers (List.map (Core.replaceInteropInMember attrName)) cmp
 
-                    (cmp :: components, cmpInterface :: interfaces, attr :: attributes)
-                ) ([], [], [])
+                    (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations)
+                ) ([], [], [], [])
 
             let interfaceDecl =
                 SynModuleDecl.Types(interfaces, range0)

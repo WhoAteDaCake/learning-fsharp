@@ -1,6 +1,5 @@
 module Myriad.Typegen.Tests.Bindings
 
-open Myriad.Typegen.Tests.Base
 open Myriad.Plugins
 open Fable.Core.JsInterop
 
@@ -34,10 +33,11 @@ type Layout =
 [<Generator.Component;
   Generator.ExtendsMethods(typeof<WithClass>,
                            //
-                           typeof<WithClassTest>,
+                           // typeof<WithClassTest>,
                            typeof<WithChildren>)>]
 type button() =
-    static member inline create() = (import<Layout> "Layout" "antd").Header
+    static member inline create() =
+        Feliz.Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
     static member inline disabled(value: bool) = Interop.attr "disabled" value
 
 
