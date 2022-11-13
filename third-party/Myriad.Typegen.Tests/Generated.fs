@@ -22,10 +22,10 @@ module Interop =
     let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
 
 [<Erase>]
-module MyTest =
+module RootModule =
 
     type Layout =
-        { Header: obj
+        { Headers: obj
           Content: obj
           Footer: obj }
 

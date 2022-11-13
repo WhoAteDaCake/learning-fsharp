@@ -80,17 +80,13 @@ type Example() =
                         (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations))
                     ([], [], [], [])
 
+            let rootType =
+                let found =
+                    (extractTypeDefn ast)
+                    |> List.collect (fun (_, x) -> x)
+                    |> List.find (fun x -> hasAttribute<Generator.LibraryRootAttribute> x)
 
-            let rootModuleRaw =
-                (extractTypeDefn ast)
-                |> List.collect (fun (_, x) -> x)
-                |> List.find (fun x -> hasAttribute<Generator.LibraryRootAttribute> x)
-
-            let componentModuleName =
-                Core.getComponentModuleName rootModuleRaw
-
-            let rootModule =
-                rootModuleRaw
+                found
                     .appendAttribute("Erase")
                     .removeAttribute<Generator.LibraryRootAttribute>()
                     .addStaticMembers (creations)
@@ -127,9 +123,17 @@ type Example() =
                     | SynModuleDecl.Open _ -> true
                     | _ -> false)
 
+            let componentModuleName =
+                rootNsDecls
+                |> List.pick (fun (d: SynModuleDecl) ->
+                    if d.hasAttribute<Generator.ModuleRootAttribute> () then
+                        Some(d.Name())
+                    else
+                        None)
+
             let componentModule =
                 SynModuleDecl
-                    .CreateNestedModule(SynComponentInfo.Create [ Ident.Create componentModuleName ], typeDecls)
+                    .CreateNestedModule(SynComponentInfo.Create(componentModuleName), typeDecls)
                     .appendAttribute ("Erase")
 
 
@@ -141,7 +145,7 @@ type Example() =
                         @ [ interfaceDecl
                             interopModule
                             componentModule
-                            SynModuleDecl.Types([ rootModule ], Range.Zero) ]
+                            SynModuleDecl.Types([ rootType ], Range.Zero) ]
                 )
 
             Output.Ast [ namespaceOrModule ]

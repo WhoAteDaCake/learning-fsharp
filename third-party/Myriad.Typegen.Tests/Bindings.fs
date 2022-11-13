@@ -26,25 +26,27 @@ type WithChildren =
         unbox<Interop.inlined> (prop.children elements)
 
 
-[<Generator.Included>]
-type Layout =
-    { Header: obj
-      Content: obj
-      Footer: obj }
+[<Generator.ModuleRoot>]
+module RootModule =
+    [<Generator.Included>]
+    type Layout =
+        { Headers: obj
+          Content: obj
+          Footer: obj }
 
-[<Generator.Component;
-  Generator.ExtendsMethods(typeof<WithClass>,
-                           //
-                           // typeof<WithClassTest>,
-                           typeof<WithChildren>)>]
-type button() =
-    static member inline create(properties: Interop.inlined list) =
-        Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
+    [<Generator.Component;
+      Generator.ExtendsMethods(typeof<WithClass>,
+                               //
+                               // typeof<WithClassTest>,
+                               typeof<WithChildren>)>]
+    type button() =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
 
-    static member inline disabled(value: bool) = Interop.attr "disabled" value
+        static member inline disabled(value: bool) = Interop.attr "disabled" value
 
 
-[<Generator.LibraryRoot("MyTest")>]
+[<Generator.LibraryRoot>]
 type Antd =
     class
     end

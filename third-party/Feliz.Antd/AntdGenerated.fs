@@ -31,59 +31,61 @@ module Interop =
     let inline mkLayoutAttr (key: string) (value: obj) : ILayoutProperty = unbox (key, value)
     let inline mkLayoutHeaderAttr (key: string) (value: obj) : ILayoutHeaderProperty = unbox (key, value)
 
-
-type Layout =
-    { Header: obj
-      Content: obj
-      Footer: obj }
-
 [<Erase>]
+module AntdReact =
 
-type button() =
-    static member inline children(elements: Fable.React.ReactElement list) =
-        unbox<IButtonProperty> (prop.children elements)
+    type Layout =
+        { Header: obj
+          Content: obj
+          Footer: obj }
 
-    static member inline classNames(value: string) = Interop.mkButtonAttr "className" value
+    [<Erase>]
 
-    static member inline className(names: seq<string>) =
-        Interop.mkButtonAttr "className" (String.concat " " names)
+    type button() =
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<IButtonProperty> (prop.children elements)
 
-    static member inline disabled(value: bool) = Interop.mkButtonAttr "disabled" value
-    static member inline label(value: string) = Interop.mkButtonAttr "label" value
+        static member inline classNames(value: string) = Interop.mkButtonAttr "className" value
 
-[<Erase>]
+        static member inline className(names: seq<string>) =
+            Interop.mkButtonAttr "className" (String.concat " " names)
 
-type layout =
-    static member inline style(properties: #IStyleAttribute list) =
-        Interop.mkLayoutAttr "style" (createObj !!properties)
+        static member inline disabled(value: bool) = Interop.mkButtonAttr "disabled" value
+        static member inline label(value: string) = Interop.mkButtonAttr "label" value
 
-    static member inline children(elements: Fable.React.ReactElement list) =
-        unbox<ILayoutProperty> (prop.children elements)
+    [<Erase>]
 
-    static member inline classNames(value: string) = Interop.mkLayoutAttr "className" value
+    type layout =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkLayoutAttr "style" (createObj !!properties)
 
-    static member inline className(names: seq<string>) =
-        Interop.mkLayoutAttr "className" (String.concat " " names)
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<ILayoutProperty> (prop.children elements)
 
-    static member inline hasSider(value: bool) = Interop.mkLayoutAttr "hasSider" value
+        static member inline classNames(value: string) = Interop.mkLayoutAttr "className" value
 
-[<Erase>]
+        static member inline className(names: seq<string>) =
+            Interop.mkLayoutAttr "className" (String.concat " " names)
 
-type layoutHeader =
-    static member inline style(properties: #IStyleAttribute list) =
-        Interop.mkLayoutHeaderAttr "style" (createObj !!properties)
+        static member inline hasSider(value: bool) = Interop.mkLayoutAttr "hasSider" value
 
-    static member inline children(elements: Fable.React.ReactElement list) =
-        unbox<ILayoutHeaderProperty> (prop.children elements)
+    [<Erase>]
 
-    static member inline classNames(value: string) =
-        Interop.mkLayoutHeaderAttr "className" value
+    type layoutHeader =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkLayoutHeaderAttr "style" (createObj !!properties)
 
-    static member inline className(names: seq<string>) =
-        Interop.mkLayoutHeaderAttr "className" (String.concat " " names)
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<ILayoutHeaderProperty> (prop.children elements)
 
-    static member inline hasSider(value: bool) =
-        Interop.mkLayoutHeaderAttr "hasSider" value
+        static member inline classNames(value: string) =
+            Interop.mkLayoutHeaderAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkLayoutHeaderAttr "className" (String.concat " " names)
+
+        static member inline hasSider(value: bool) =
+            Interop.mkLayoutHeaderAttr "hasSider" value
 
 [<Erase>]
 
