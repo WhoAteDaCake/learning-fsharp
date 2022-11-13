@@ -36,7 +36,7 @@ module AntdReact =
 
     type Layout =
         { Header: obj
-          Content: obj
+          Contents: obj
           Footer: obj }
 
     [<Erase>]
@@ -98,6 +98,6 @@ type Antd =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
 
         static member inline layoutHeader(properties: Interop.inlined list) =
-            Interop.reactApi.createElement ((import<Layout> "Layout" "antd").Header, createObj !!properties)
+            Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Header, createObj !!properties)
     end
 
