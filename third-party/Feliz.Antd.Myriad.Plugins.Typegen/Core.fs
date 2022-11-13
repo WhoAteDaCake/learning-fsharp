@@ -147,6 +147,16 @@ let rec getExtensions (attr: SynAttribute) =
         | _ -> []
     | _ -> []
 
+let getComponentModuleName cmp =
+    match getAttribute<Generator.LibraryRootAttribute> cmp with
+    | Some (attr) ->
+        match attr.ArgExpr with
+        | SynExpr.Paren(expr = SynExpr.Const(constant = SynConst.String (text = text))) -> text
+        | _ -> failwith "Couldn't extract root"
+    | _ -> failwith "Couldn't extract root"
+
+
+
 let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
     match getAttribute<Generator.ExtendsMethodsAttribute> cmp with
     | None -> cmp

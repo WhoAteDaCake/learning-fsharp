@@ -35,7 +35,7 @@ type Layout =
 [<Generator.Component;
   Generator.ExtendsMethods(typeof<WithClass>,
                            //
-                           typeof<WithClassTest>,
+                           // typeof<WithClassTest>,
                            typeof<WithChildren>)>]
 type button() =
     static member inline create(properties: Interop.inlined list) =
@@ -44,7 +44,7 @@ type button() =
     static member inline disabled(value: bool) = Interop.attr "disabled" value
 
 
-[<Generator.LibraryRoot>]
+[<Generator.LibraryRoot("MyTest")>]
 type Antd =
     class
     end

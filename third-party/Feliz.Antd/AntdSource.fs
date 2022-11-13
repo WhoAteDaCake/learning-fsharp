@@ -59,7 +59,7 @@ type layoutHeader =
     static member inline hasSider(value: bool) = Interop.attr "hasSider" value
 
 
-[<Generator.LibraryRoot>]
+[<Generator.LibraryRoot("AntdReact")>]
 type Antd =
     class
     end

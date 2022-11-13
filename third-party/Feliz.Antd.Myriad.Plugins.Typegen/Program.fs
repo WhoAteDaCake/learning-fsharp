@@ -80,13 +80,17 @@ type Example() =
                         (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations))
                     ([], [], [], [])
 
-            let rootModule =
-                let found =
-                    (extractTypeDefn ast)
-                    |> List.collect (fun (_, x) -> x)
-                    |> List.find (fun x -> hasAttribute<Generator.LibraryRootAttribute> x)
 
-                found
+            let rootModuleRaw =
+                (extractTypeDefn ast)
+                |> List.collect (fun (_, x) -> x)
+                |> List.find (fun x -> hasAttribute<Generator.LibraryRootAttribute> x)
+
+            let componentModuleName =
+                Core.getComponentModuleName rootModuleRaw
+
+            let rootModule =
+                rootModuleRaw
                     .appendAttribute("Erase")
                     .removeAttribute<Generator.LibraryRootAttribute>()
                     .addStaticMembers (creations)
@@ -123,14 +127,21 @@ type Example() =
                     | SynModuleDecl.Open _ -> true
                     | _ -> false)
 
+            let componentModule =
+                SynModuleDecl
+                    .CreateNestedModule(SynComponentInfo.Create [ Ident.Create componentModuleName ], typeDecls)
+                    .appendAttribute ("Erase")
+
+
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(
                     List.filter (fun (i: Ident) -> i.idText <> "Generated") rootNsName,
                     decls =
                         opens
-                        @ [ interfaceDecl; interopModule ]
-                          @ typeDecls
-                            @ [ SynModuleDecl.Types([ rootModule ], Range.Zero) ]
+                        @ [ interfaceDecl
+                            interopModule
+                            componentModule
+                            SynModuleDecl.Types([ rootModule ], Range.Zero) ]
                 )
 
             Output.Ast [ namespaceOrModule ]

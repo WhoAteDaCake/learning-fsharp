@@ -19,5 +19,6 @@ module Generator =
     type IncludedAttribute() =
         inherit Attribute()
 
-    type LibraryRootAttribute() =
+    // Specifies the namespace where the components will be located
+    type LibraryRootAttribute(ns: string) =
         inherit Attribute()
