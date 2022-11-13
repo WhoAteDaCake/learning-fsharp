@@ -70,8 +70,12 @@ type Example() =
                         let attr =
                             Builtin.createAttr propertyName attrName
 
+                        let modifier =
+                            (Core.replaceInteropTypeInMember propertyName)
+                            >> (Core.replaceInteropInMember attrName)
+
                         let cmp =
-                            Core.modifyStaticMembers (List.map (Core.replaceInteropInMember attrName)) cmp
+                            Core.modifyStaticMembers (List.map modifier) cmp
 
                         (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations))
                     ([], [], [], [])
@@ -85,7 +89,7 @@ type Example() =
                 found
                     .appendAttribute("Erase")
                     .removeAttribute<Generator.LibraryRootAttribute>()
-                    .addStaticMembers(creations)
+                    .addStaticMembers (creations)
 
             let interfaceDecl =
                 SynModuleDecl.Types(interfaces, range0)
@@ -94,7 +98,7 @@ type Example() =
                 SynModuleDecl
                     .CreateNestedModule(SynComponentInfo.Create [ Ident.Create "Interop" ], attributes)
                     .appendAttribute("Erase")
-                    .appendAttribute("RequireQualifiedAccess")
+                    .appendAttribute ("RequireQualifiedAccess")
 
             let allTypes =
                 (included
@@ -108,25 +112,25 @@ type Example() =
             let rootNsDecls, rootNsName =
                 let extracted =
                     match ast with
-                    | ParsedInput.ImplFile(ParsedImplFileInput(_, _, _, _, _, modules, _)) ->
-                        modules[0]
+                    | ParsedInput.ImplFile (ParsedImplFileInput (_, _, _, _, _, modules, _)) -> modules[0]
                     | _ -> failwith "Could not find root module"
+
                 extracted.Decls(), extracted.LongId()
 
             let opens =
-                rootNsDecls |> List.filter(
-                    function
+                rootNsDecls
+                |> List.filter (function
                     | SynModuleDecl.Open _ -> true
                     | _ -> false)
 
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(
-                    rootNsName,
+                    List.filter (fun (i: Ident) -> i.idText <> "Generated") rootNsName,
                     decls =
                         opens
                         @ [ interfaceDecl; interopModule ]
-                        @ typeDecls
-                        @ [ SynModuleDecl.Types([ rootModule ], Range.Zero) ]
+                          @ typeDecls
+                            @ [ SynModuleDecl.Types([ rootModule ], Range.Zero) ]
                 )
 
             Output.Ast [ namespaceOrModule ]

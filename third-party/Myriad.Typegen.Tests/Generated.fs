@@ -10,6 +10,7 @@ namespace Feliz
 open Myriad.Plugins
 open Fable.Core.JsInterop
 open Fable.Core
+open Feliz
 
 type IButtonProperty =
     interface
@@ -30,7 +31,7 @@ type Layout =
 
 type button() =
     static member inline children(elements: Fable.React.ReactElement list) =
-        unbox<Interop.inlined> (prop.children elements)
+        unbox<IButtonProperty> (prop.children elements)
 
     static member inline classNames1(value: string) = Interop.mkButtonAttr "className" value
 
@@ -51,3 +52,4 @@ type Antd =
         static member inline button(properties: Interop.inlined list) =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
     end
+

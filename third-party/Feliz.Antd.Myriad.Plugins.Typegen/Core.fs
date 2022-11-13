@@ -175,10 +175,71 @@ let findAndRemove (name: string) (ls: SynMemberDefns) =
     found, others
 
 let bindingToModuleLet binding =
-    SynModuleDecl.Let(
-        false,
-        [
-             binding
-        ],
-        range0
-    )
+    SynModuleDecl.Let(false, [ binding ], range0)
+
+let isInteropType (ls: Ident list) =
+    match List.map (fun (i: Ident) -> i.idText) ls with
+    | "Interop" :: [ "inlined" ] -> true
+    | _ -> false
+
+let replaceInteropTypeInSynType newType =
+    function
+    | SynType.LongIdent (LongIdentWithDots (idents, dotRanges)) ->
+        if isInteropType idents then
+            SynType.LongIdent(LongIdentWithDots.CreateString newType)
+        else
+            SynType.LongIdent(LongIdentWithDots(idents, dotRanges))
+    | item -> item
+
+let rec replaceInteropTypeInExpr newType =
+    function
+    | SynExpr.TypeApp (synExpr, lessRange, typeArgs, commaRanges, greaterRange, typeArgsRange, range) ->
+        let newArgs =
+            typeArgs
+            |> List.map (replaceInteropTypeInSynType newType)
+
+        SynExpr.TypeApp(synExpr, lessRange, newArgs, commaRanges, greaterRange, typeArgsRange, range)
+    | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
+        SynExpr.App(exprAtomicFlag, isInfix, replaceInteropTypeInExpr newType funcExpr, argExpr, range)
+    | item -> item
+
+let replaceInteropTypeInBinding
+    newType
+    (SynBinding (synAccessOption,
+                 synBindingKind,
+                 isInline,
+                 isMutable,
+                 synAttributeLists,
+                 preXmlDoc,
+                 synValData,
+                 headPat,
+                 synBindingReturnInfoOption,
+                 synExpr,
+                 range,
+                 debugPointAtBinding,
+                 synBindingTrivia))
+    =
+    let newExpr =
+        replaceInteropTypeInExpr newType synExpr
+
+    (SynBinding(
+        synAccessOption,
+        synBindingKind,
+        isInline,
+        isMutable,
+        synAttributeLists,
+        preXmlDoc,
+        synValData,
+        headPat,
+        synBindingReturnInfoOption,
+        newExpr,
+        range,
+        debugPointAtBinding,
+        synBindingTrivia
+    ))
+
+let replaceInteropTypeInMember newType =
+    function
+    | SynMemberDefn.Member (memberDefn, range) ->
+        SynMemberDefn.Member(replaceInteropTypeInBinding newType memberDefn, range)
+    | item -> item

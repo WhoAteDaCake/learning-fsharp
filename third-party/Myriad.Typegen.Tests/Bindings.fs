@@ -1,8 +1,9 @@
-namespace Feliz
+namespace Generated.Feliz
 
 open Myriad.Plugins
 open Fable.Core.JsInterop
 open Fable.Core
+open Feliz
 
 
 [<Generator.Methods>]
@@ -39,8 +40,11 @@ type Layout =
 type button() =
     static member inline create(properties: Interop.inlined list) =
         Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
+
     static member inline disabled(value: bool) = Interop.attr "disabled" value
 
 
 [<Generator.LibraryRoot>]
-type Antd = class end
+type Antd =
+    class
+    end
