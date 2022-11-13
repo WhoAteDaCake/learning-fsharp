@@ -119,6 +119,18 @@ type SynTypeDefn with
             _range,
             _trivia
         ))
+    member this.appendAttribute(name: string) =
+        let (SynTypeDefn (synComponentInfo, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
+            this
+
+        (SynTypeDefn(
+            synComponentInfo.changeAttributes (appendAttribute name),
+            _typeDefRepr,
+            _memberDefs,
+            _implicitCtor,
+            _range,
+            _trivia
+        ))
 
 type SynModuleOrNamespace with
     member this.decls() =
@@ -196,6 +208,19 @@ type SynModuleDecl with
             )
         | item -> item
 
+    member this.appendMembers(members: SynModuleDecl list) =
+        match this with
+        | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
+            SynModuleDecl.NestedModule(
+                moduleInfo,
+                isRecursive,
+                delcs @ members,
+                isContinuing,
+                range,
+                trivia
+            )
+        | item -> item
+
 type SynPat with
     member this.Rename(name: string) =
         match this with
@@ -256,3 +281,9 @@ type SynMemberDefn with
         | SynMemberDefn.Member (memberDefn, _range) ->
             SynMemberDefn.Member(memberDefn.Rename name, _range)
         | item -> item
+
+    member this.MemberDefn() =
+        match this with
+        | SynMemberDefn.Member (memberDefn, _range) ->
+            memberDefn
+        | item -> failwith $"No member definition in {this}"

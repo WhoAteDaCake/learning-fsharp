@@ -27,17 +27,6 @@ type Example() =
                 |> Async.RunSynchronously
                 |> Array.head
 
-
-            let rootModule =
-                let found =
-                    match Core.findRoot ast with
-                    | Some(n) -> n
-                    | None -> failwith "Could not find Root module"
-
-                found
-                    .appendAttribute("Erase")
-                    .removeAttribute<Generator.RootModuleAttribute>()
-
             let included, methods, components =
                 (extractTypeDefn ast)
                 |> List.fold Core.sortTypes ([], [], [])
@@ -51,7 +40,7 @@ type Example() =
             let filledComponents, interfaces, attributes, creations =
                 components
                 |> List.fold (fun (components, interfaces, attributes, creations) c ->
-                    let cmp = (Core.extendComponent methodMap c)
+                    let cmp = (Core.extendComponent methodMap c).appendAttribute("Erase")
 
                     // Extract creation method here
                     let action, cmp = Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
@@ -77,6 +66,22 @@ type Example() =
                     (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations)
                 ) ([], [], [], [])
 
+
+            let rootDecls =
+                creations |> List.map (fun c ->
+                    Core.bindingToModuleLet (c.MemberDefn()))
+
+            let rootModule =
+                let found =
+                    match Core.findRoot ast with
+                    | Some(n) -> n
+                    | None -> failwith "Could not find Root module"
+
+                found
+                    .appendAttribute("Erase")
+                    .removeAttribute<Generator.RootModuleAttribute>()
+                    .appendMembers(rootDecls)
+
             let interfaceDecl =
                 SynModuleDecl.Types(interfaces, range0)
 
@@ -84,7 +89,8 @@ type Example() =
                 SynModuleDecl.CreateNestedModule(
                     SynComponentInfo.Create [ Ident.Create "Interop" ],
                     attributes
-                )
+                ).appendAttribute("Erase")
+
             let componentInfo =
                 SynComponentInfo.Create [ Ident.Create "example1" ]
 

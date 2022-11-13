@@ -13,9 +13,9 @@ type WithClass =
 
 [<Generator.Methods>]
 type WithClassTest =
-    static member inline classNames(value: string) = Interop.attr "className" value
+    static member inline classNames1(value: string) = Interop.attr "className" value
 
-    static member inline className(names: seq<string>) =
+    static member inline className2(names: seq<string>) =
         Interop.attr "className" (String.concat " " names)
 
 [<Generator.Methods>]
@@ -33,7 +33,7 @@ type Layout =
 [<Generator.Component;
   Generator.ExtendsMethods(typeof<WithClass>,
                            //
-                           // typeof<WithClassTest>,
+                           typeof<WithClassTest>,
                            typeof<WithChildren>)>]
 type button() =
     static member inline create() =
@@ -43,5 +43,10 @@ type button() =
 
 [<Generator.RootModule>]
 module Antd =
-    begin
-    end
+    let inline create() =
+        Feliz.Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
+// [<Generator.RootModule>]
+// module Antd =
+//     begin
+//
+//     end

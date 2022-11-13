@@ -88,10 +88,12 @@ let rec replaceInteropInExpr newCall =
                 LongIdentWithDots.Create([ "Interop"; newCall ])
             else
                 longDotId
+
         SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
     | item -> item
 
-let replaceInteropInSynBinding newCall
+let replaceInteropInSynBinding
+    newCall
     (SynBinding (synAccessOption,
                  synBindingKind,
                  isInline,
@@ -162,21 +164,60 @@ let extendComponent (lookup: Map<string, SynTypeDefn>) cmp =
             exts
 
 let findRoot (ast: ParsedInput) =
-    let isRootDecl = function
-    | SynModuleDecl.NestedModule(synComponentInfo, _, _, _, _, _) ->
-        synComponentInfo.hasAttribute<Generator.RootModuleAttribute>()
-    | _ -> false
+    let isRootDecl =
+        function
+        | SynModuleDecl.NestedModule (synComponentInfo, _, _, _, _, _) ->
+            synComponentInfo.hasAttribute<Generator.RootModuleAttribute> ()
+        | _ -> false
 
     match ast with
-    | ParsedInput.ImplFile(ParsedImplFileInput(_name, _isScript, _qualifiedNameOfFile, _scopedPragmas, _hashDirectives, modules, _g)) ->
-        modules[0].decls() |> List.find isRootDecl |> Some
+    | ParsedInput.ImplFile (ParsedImplFileInput (_name,
+                                                 _isScript,
+                                                 _qualifiedNameOfFile,
+                                                 _scopedPragmas,
+                                                 _hashDirectives,
+                                                 modules,
+                                                 _g)) ->
+        modules[ 0 ].decls ()
+        |> List.find isRootDecl
+        |> Some
     | _ -> None
 
 let findAndRemove (name: string) (ls: SynMemberDefns) =
     let findCreate (m: SynMemberDefn) =
         match m.Ident() with
-        | Some([ foundName ]) ->
-            foundName = name
+        | Some ([ foundName ]) -> foundName = name
         | _ -> false
-    let found, others = List.splitWhen findCreate ls
+
+    let found, others =
+        List.splitWhen findCreate ls
+
     found, others
+
+let bindingToModuleLet
+    (SynBinding (_accessibility,
+                 _kind,
+                 isInline,
+                 isMutable,
+                 attributes,
+                 _xmlDoc,
+                 valData,
+                 headPat,
+                 returnInfo,
+                 expr,
+                 _range,
+                 _debugPoint,
+                 _trivia))
+    =
+    let xmldoc = PreXmlDoc.Empty
+    // let expr = defaultArg expr (SynExpr.CreateTyped(SynExpr.CreateNull, SynType.CreateUnit))
+    let bind = DebugPointAtBinding.NoneAtLet
+    let trivia = { LetKeyword = Some range0
+                   EqualsRange = Some range0 }
+    SynModuleDecl.Let(
+        false,
+        [
+             SynBinding.SynBinding(None, SynBindingKind.Normal, isInline, isMutable, attributes, xmldoc, valData, headPat, returnInfo, expr, range0, bind, trivia)
+        ],
+        range0
+    )
