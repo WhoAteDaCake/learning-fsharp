@@ -33,6 +33,12 @@ type Ident with
 type SynTypeDefnRepr with
     static member Create(name) = Ident(name, Range.Zero)
 
+    member this.addStaticMembers(members: SynMemberDefns) =
+        match this with
+        | SynTypeDefnRepr.ObjectModel(synTypeDefnKind, synMemberDefns, range) ->
+            SynTypeDefnRepr.ObjectModel(synTypeDefnKind, synMemberDefns @ members, range)
+        | item -> item
+
 type SynArgPats with
     static member Empty = SynArgPats.Pats []
 
@@ -132,14 +138,14 @@ type SynTypeDefn with
             _trivia
         ))
 
-    member this.addDefs(defs: SynMemberDefns) =
-        let (SynTypeDefn (synComponentInfo, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
+    member this.addStaticMembers(members: SynMemberDefns) =
+        let (SynTypeDefn (synComponentInfo, typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
             this
 
         (SynTypeDefn(
             synComponentInfo,
-            _typeDefRepr,
-            _memberDefs @ defs,
+            typeDefRepr.addStaticMembers(members),
+            _memberDefs,
             _implicitCtor,
             _range,
             _trivia

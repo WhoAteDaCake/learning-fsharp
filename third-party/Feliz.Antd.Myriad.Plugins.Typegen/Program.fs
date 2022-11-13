@@ -85,7 +85,7 @@ type Example() =
                 found
                     .appendAttribute("Erase")
                     .removeAttribute<Generator.LibraryRootAttribute>()
-                    .addDefs (creations)
+                    .addStaticMembers(creations)
 
             let interfaceDecl =
                 SynModuleDecl.Types(interfaces, range0)
