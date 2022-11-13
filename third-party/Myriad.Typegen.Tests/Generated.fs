@@ -5,8 +5,10 @@
 
 
 
-namespace hello
+namespace Feliz
 
+open Myriad.Plugins
+open Fable.Core.JsInterop
 open Fable.Core
 
 type IButtonProperty =
@@ -46,8 +48,6 @@ type button() =
 
 type Antd =
     class
+        static member inline button(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
     end
-
-    static member inline button(properties: Interop.inlined list) =
-        Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
-

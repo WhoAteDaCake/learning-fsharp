@@ -153,10 +153,14 @@ type SynTypeDefn with
 
 
 type SynModuleOrNamespace with
-    member this.decls() =
+
+    member this.LongId() =
+        let (SynModuleOrNamespace (longId, isRecursive, kind, decls, xmlDoc, attributes, accessibility, range)) = this
+        longId
+
+    member this.Decls() =
         let (SynModuleOrNamespace (_, _, _, decls, _, _, _, _)) =
             this
-
         decls
 
     member this.removeAttribute<'a>() =

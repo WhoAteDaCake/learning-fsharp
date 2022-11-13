@@ -105,11 +105,26 @@ type Example() =
             let typeDecls =
                 List.map (fun t -> SynModuleDecl.Types([ t ], Range.Zero)) allTypes
 
+            let rootNsDecls, rootNsName =
+                let extracted =
+                    match ast with
+                    | ParsedInput.ImplFile(ParsedImplFileInput(_, _, _, _, _, modules, _)) ->
+                        modules[0]
+                    | _ -> failwith "Could not find root module"
+                extracted.Decls(), extracted.LongId()
+
+            let opens =
+                rootNsDecls |> List.filter(
+                    function
+                    | SynModuleDecl.Open _ -> true
+                    | _ -> false)
+
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(
-                    Ident.CreateLong "hello",
+                    rootNsName,
                     decls =
-                        [ interfaceDecl; interopModule ]
+                        opens
+                        @ [ interfaceDecl; interopModule ]
                         @ typeDecls
                         @ [ SynModuleDecl.Types([ rootModule ], Range.Zero) ]
                 )
