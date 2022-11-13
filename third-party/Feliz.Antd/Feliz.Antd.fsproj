@@ -17,10 +17,17 @@
         <Compile Include="AntdSource.fs"/>
         <Compile Include="AntdGenerated.fs">
             <MyriadFile>AntdSource.fs</MyriadFile>
+            <MyriadNameSpace>Feliz</MyriadNameSpace>
         </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Myriad.Sdk" Version="0.8.1"/>
+        <PackageReference Include="Myriad.Core" Version="0.8.1"/>
+        <PackageReference Include="Myriad.Plugins" Version="0.8.1"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj"/>
     </ItemGroup>
+    <Import Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props"/>
     <Import Project="..\..\.paket\Paket.Restore.targets"/>
 </Project>
