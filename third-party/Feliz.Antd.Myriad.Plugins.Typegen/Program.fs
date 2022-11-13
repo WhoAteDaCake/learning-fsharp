@@ -80,7 +80,7 @@ type Example() =
                         (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations))
                     ([], [], [], [])
 
-            let rootModule =
+            let rootType =
                 let found =
                     (extractTypeDefn ast)
                     |> List.collect (fun (_, x) -> x)
@@ -123,14 +123,29 @@ type Example() =
                     | SynModuleDecl.Open _ -> true
                     | _ -> false)
 
+            let componentModuleName =
+                rootNsDecls
+                |> List.pick (fun (d: SynModuleDecl) ->
+                    if d.hasAttribute<Generator.ModuleRootAttribute> () then
+                        Some(d.Name())
+                    else
+                        None)
+
+            let componentModule =
+                SynModuleDecl
+                    .CreateNestedModule(SynComponentInfo.Create(componentModuleName), typeDecls)
+                    .appendAttribute ("Erase")
+
+
             let namespaceOrModule =
                 SynModuleOrNamespace.CreateNamespace(
                     List.filter (fun (i: Ident) -> i.idText <> "Generated") rootNsName,
                     decls =
                         opens
-                        @ [ interfaceDecl; interopModule ]
-                          @ typeDecls
-                            @ [ SynModuleDecl.Types([ rootModule ], Range.Zero) ]
+                        @ [ interfaceDecl
+                            interopModule
+                            componentModule
+                            SynModuleDecl.Types([ rootType ], Range.Zero) ]
                 )
 
             Output.Ast [ namespaceOrModule ]

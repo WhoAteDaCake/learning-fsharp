@@ -35,7 +35,7 @@ type SynTypeDefnRepr with
 
     member this.addStaticMembers(members: SynMemberDefns) =
         match this with
-        | SynTypeDefnRepr.ObjectModel(synTypeDefnKind, synMemberDefns, range) ->
+        | SynTypeDefnRepr.ObjectModel (synTypeDefnKind, synMemberDefns, range) ->
             SynTypeDefnRepr.ObjectModel(synTypeDefnKind, synMemberDefns @ members, range)
         | item -> item
 
@@ -43,6 +43,20 @@ type SynArgPats with
     static member Empty = SynArgPats.Pats []
 
 type SynComponentInfo with
+    member this.Name() =
+        let (SynComponentInfo (attributes,
+                               _typeParams,
+                               _constraints,
+                               _recordIdent,
+                               _doc,
+                               _preferPostfix,
+                               _access,
+                               _ciRange)) =
+            this
+
+        _recordIdent
+
+
     static member Create(longId, ?typeParams, ?preferPostFix, ?accessibility, ?attributes, ?constrains) =
         SynComponentInfo(
             defaultArg attributes [],
@@ -125,6 +139,7 @@ type SynTypeDefn with
             _range,
             _trivia
         ))
+
     member this.appendAttribute(name: string) =
         let (SynTypeDefn (synComponentInfo, _typeDefRepr, _memberDefs, _implicitCtor, _range, _trivia)) =
             this
@@ -144,7 +159,7 @@ type SynTypeDefn with
 
         (SynTypeDefn(
             synComponentInfo,
-            typeDefRepr.addStaticMembers(members),
+            typeDefRepr.addStaticMembers (members),
             _memberDefs,
             _implicitCtor,
             _range,
@@ -155,12 +170,15 @@ type SynTypeDefn with
 type SynModuleOrNamespace with
 
     member this.LongId() =
-        let (SynModuleOrNamespace (longId, isRecursive, kind, decls, xmlDoc, attributes, accessibility, range)) = this
+        let (SynModuleOrNamespace (longId, isRecursive, kind, decls, xmlDoc, attributes, accessibility, range)) =
+            this
+
         longId
 
     member this.Decls() =
         let (SynModuleOrNamespace (_, _, _, decls, _, _, _, _)) =
             this
+
         decls
 
     member this.removeAttribute<'a>() =
@@ -206,6 +224,11 @@ type SynModuleOrNamespace with
 
 type SynModuleDecl with
 
+    member this.Name() =
+        match this with
+        | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) -> moduleInfo.Name()
+        | _ -> failwith "unsupported opperation"
+
     member this.appendAttribute(name: string) =
         match this with
         | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
@@ -218,6 +241,13 @@ type SynModuleDecl with
                 trivia
             )
         | item -> item
+
+    member this.hasAttribute<'a>() =
+        match this with
+        | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
+            moduleInfo.hasAttribute<'a> ()
+        | item -> false
+
 
     member this.removeAttribute<'a>() =
         match this with
@@ -235,14 +265,7 @@ type SynModuleDecl with
     member this.appendMembers(members: SynModuleDecl list) =
         match this with
         | SynModuleDecl.NestedModule (moduleInfo, isRecursive, delcs, isContinuing, range, trivia) ->
-            SynModuleDecl.NestedModule(
-                moduleInfo,
-                isRecursive,
-                delcs @ members,
-                isContinuing,
-                range,
-                trivia
-            )
+            SynModuleDecl.NestedModule(moduleInfo, isRecursive, delcs @ members, isContinuing, range, trivia)
         | item -> item
 
 type SynPat with
@@ -302,12 +325,10 @@ type SynMemberDefn with
 
     member this.Rename(name: string) =
         match this with
-        | SynMemberDefn.Member (memberDefn, _range) ->
-            SynMemberDefn.Member(memberDefn.Rename name, _range)
+        | SynMemberDefn.Member (memberDefn, _range) -> SynMemberDefn.Member(memberDefn.Rename name, _range)
         | item -> item
 
     member this.MemberDefn() =
         match this with
-        | SynMemberDefn.Member (memberDefn, _range) ->
-            memberDefn
+        | SynMemberDefn.Member (memberDefn, _range) -> memberDefn
         | item -> failwith $"No member definition in {this}"
