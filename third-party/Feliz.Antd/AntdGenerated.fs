@@ -122,3 +122,4 @@ type Antd =
         static member inline layoutContent(properties: Interop.inlined list) =
             Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Content, createObj !!properties)
     end
+

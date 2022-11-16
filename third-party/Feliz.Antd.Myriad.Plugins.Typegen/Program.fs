@@ -46,16 +46,7 @@ type Example() =
                                 .appendAttribute("Erase")
                                 .removeAttribute<Generator.ComponentAttribute> ()
 
-                        // Extract creation method here
-                        let action, cmp =
-                            Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
-
                         let name = Core.typeName cmp
-
-                        let creation =
-                            match Option.map (fun (m: SynMemberDefn) -> m.Rename name) action with
-                            | Some (mDef) -> mDef
-                            | None -> failwith $"Could not detect creation method for {c}"
 
                         let newName =
                             name.Substring(0, 1).ToUpper() + name.Substring(1)
@@ -70,12 +61,23 @@ type Example() =
                         let attr =
                             Builtin.createAttr propertyName attrName
 
+                        // TODO: Make sure it's replaced in arguments as well.
                         let modifier =
                             (Core.replaceInteropTypeInMember propertyName)
                             >> (Core.replaceInteropInMember attrName)
 
                         let cmp =
                             Core.modifyStaticMembers (List.map modifier) cmp
+
+
+                        // Extract creation method here
+                        let action, cmp =
+                            Core.modifyStaticMembers2 (Core.findAndRemove "create") cmp
+
+                        let creation =
+                            match Option.map (fun (m: SynMemberDefn) -> m.Rename name) action with
+                            | Some (mDef) -> mDef
+                            | None -> failwith $"Could not detect creation method for {c}"
 
                         (cmp :: components, cmpInterface :: interfaces, attr :: attributes, creation :: creations))
                     ([], [], [], [])
@@ -120,7 +122,10 @@ type Example() =
             let opens =
                 rootNsDecls
                 |> List.filter (function
-                    | SynModuleDecl.Open _ -> true
+                    | SynModuleDecl.Open (SynOpenDeclTarget.ModuleOrNamespace (longIdent, _), _) ->
+                        match List.map (fun (x: Ident) -> x.idText) longIdent with
+                        | "Myriad" :: _ -> false
+                        | _ -> true
                     | _ -> false)
 
             let componentModuleName =

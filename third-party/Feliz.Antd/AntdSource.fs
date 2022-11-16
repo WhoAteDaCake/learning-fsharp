@@ -40,6 +40,7 @@ module rec AntdReact =
 
         static member inline disabled(value: bool) = Interop.attr "disabled" value
         static member inline label(value: string) = Interop.attr "label" value
+    // static member inline label2(value: string) = Interop.attr "label2" value
 
 
 
