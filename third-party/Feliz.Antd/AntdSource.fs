@@ -30,7 +30,7 @@ module rec AntdReact =
     [<Generator.Included>]
     type Layout =
         { Header: obj
-          Contents: obj
+          Content: obj
           Footer: obj }
 
     [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>)>]
@@ -58,6 +58,11 @@ module rec AntdReact =
 
         static member inline hasSider(value: bool) = Interop.attr "hasSider" value
 
+
+    [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
+    type layoutContent =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Content, createObj !!properties)
 
 [<Generator.LibraryRoot>]
 type Antd =

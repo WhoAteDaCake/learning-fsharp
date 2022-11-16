@@ -7,7 +7,6 @@
 
 namespace Feliz
 
-open Myriad.Plugins
 open Fable.Core.JsInterop
 open Fable.Core
 open Feliz
@@ -24,19 +23,24 @@ and ILayoutHeaderProperty =
     interface
     end
 
+and ILayoutContentProperty =
+    interface
+    end
+
 [<RequireQualifiedAccess>]
 [<Erase>]
 module Interop =
     let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
     let inline mkLayoutAttr (key: string) (value: obj) : ILayoutProperty = unbox (key, value)
     let inline mkLayoutHeaderAttr (key: string) (value: obj) : ILayoutHeaderProperty = unbox (key, value)
+    let inline mkLayoutContentAttr (key: string) (value: obj) : ILayoutContentProperty = unbox (key, value)
 
 [<Erase>]
 module AntdReact =
 
     type Layout =
         { Header: obj
-          Contents: obj
+          Content: obj
           Footer: obj }
 
     [<Erase>]
@@ -87,6 +91,21 @@ module AntdReact =
         static member inline hasSider(value: bool) =
             Interop.mkLayoutHeaderAttr "hasSider" value
 
+    [<Erase>]
+
+    type layoutContent =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkLayoutContentAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<ILayoutContentProperty> (prop.children elements)
+
+        static member inline classNames(value: string) =
+            Interop.mkLayoutContentAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkLayoutContentAttr "className" (String.concat " " names)
+
 [<Erase>]
 
 type Antd =
@@ -99,5 +118,7 @@ type Antd =
 
         static member inline layoutHeader(properties: Interop.inlined list) =
             Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Header, createObj !!properties)
-    end
 
+        static member inline layoutContent(properties: Interop.inlined list) =
+            Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Content, createObj !!properties)
+    end
