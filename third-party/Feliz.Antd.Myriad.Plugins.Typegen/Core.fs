@@ -192,8 +192,13 @@ let isInteropType (ls: Ident list) =
     | "Interop" :: [ "inlined" ] -> true
     | _ -> false
 
-let replaceInteropTypeInSynType newType =
+let rec replaceInteropTypeInSynType newType =
     function
+    | SynType.App (typeName, rangeOption, typeArgs, commaRanges, greaterRange, isPostfix, range) ->
+        let newTypeArgs =
+            List.map (replaceInteropTypeInSynType newType) typeArgs
+
+        SynType.App(typeName, rangeOption, newTypeArgs, commaRanges, greaterRange, isPostfix, range)
     | SynType.LongIdent (LongIdentWithDots (idents, dotRanges)) ->
         if isInteropType idents then
             SynType.LongIdent(LongIdentWithDots.CreateString newType)
@@ -213,6 +218,34 @@ let rec replaceInteropTypeInExpr newType =
         SynExpr.App(exprAtomicFlag, isInfix, replaceInteropTypeInExpr newType funcExpr, argExpr, range)
     | item -> item
 
+
+let rec replaceInteropTypeInSynPat newType =
+    function
+    | SynPat.Typed (pat, targetType, range) -> SynPat.Typed(pat, replaceInteropTypeInSynType newType targetType, range)
+    | SynPat.Paren (synPat, range1) -> SynPat.Paren(replaceInteropTypeInSynPat newType synPat, range1)
+    | SynPat.LongIdent (longIdentWithDots,
+                        propertyKeywordOption,
+                        identOption,
+                        synValTyparDeclsOption,
+                        argPats,
+                        synAccessOption,
+                        range) ->
+        let newArgsPats =
+            match argPats with
+            | SynArgPats.Pats pats -> SynArgPats.Pats(List.map (replaceInteropTypeInSynPat newType) pats)
+            | item -> item
+
+        SynPat.LongIdent(
+            longIdentWithDots,
+            propertyKeywordOption,
+            identOption,
+            synValTyparDeclsOption,
+            newArgsPats,
+            synAccessOption,
+            range
+        )
+    | item -> item
+
 let replaceInteropTypeInBinding
     newType
     (SynBinding (synAccessOption,
@@ -229,9 +262,6 @@ let replaceInteropTypeInBinding
                  debugPointAtBinding,
                  synBindingTrivia))
     =
-    let newExpr =
-        replaceInteropTypeInExpr newType synExpr
-
     (SynBinding(
         synAccessOption,
         synBindingKind,
@@ -240,9 +270,9 @@ let replaceInteropTypeInBinding
         synAttributeLists,
         preXmlDoc,
         synValData,
-        headPat,
+        replaceInteropTypeInSynPat newType headPat,
         synBindingReturnInfoOption,
-        newExpr,
+        replaceInteropTypeInExpr newType synExpr,
         range,
         debugPointAtBinding,
         synBindingTrivia

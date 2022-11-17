@@ -30,7 +30,7 @@ type WithChildren =
 module RootModule =
     [<Generator.Included>]
     type Layout =
-        { Headers: obj
+        { Headerssss: obj
           Content: obj
           Footer: obj }
 

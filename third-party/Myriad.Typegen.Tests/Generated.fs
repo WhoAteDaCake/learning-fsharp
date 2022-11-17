@@ -7,7 +7,6 @@
 
 namespace Feliz
 
-open Myriad.Plugins
 open Fable.Core.JsInterop
 open Fable.Core
 open Feliz
@@ -25,7 +24,7 @@ module Interop =
 module RootModule =
 
     type Layout =
-        { Headers: obj
+        { Headerssss: obj
           Content: obj
           Footer: obj }
 
@@ -46,7 +45,7 @@ module RootModule =
 
 type Antd =
     class
-        static member inline button(properties: Interop.inlined list) =
+        static member inline button(properties: IButtonProperty list) =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
     end
 
