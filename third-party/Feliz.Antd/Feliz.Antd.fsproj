@@ -14,9 +14,6 @@
             <MyriadNameSpace>Feliz</MyriadNameSpace>
         </Compile>
     </ItemGroup>
-    <Target Name="TestMessage" AfterTargets="Build">
-        <Message Text="'$(BUILD_GENERATE)'" Importance="high"/>
-    </Target>
     <ItemGroup Condition="'$(BUILD_GENERATE)' == ''">
         <PackageReference PrivateAssets="all" Include="Myriad.Sdk" Version="0.8.1"/>
         <PackageReference PrivateAssets="all" Include="Myriad.Core" Version="0.8.1"/>

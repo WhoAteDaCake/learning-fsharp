@@ -61,7 +61,6 @@ type Example() =
                         let attr =
                             Builtin.createAttr propertyName attrName
 
-                        // TODO: Make sure it's replaced in arguments as well.
                         let modifier =
                             (Core.replaceInteropTypeInMember propertyName)
                             >> (Core.replaceInteropInMember attrName)
