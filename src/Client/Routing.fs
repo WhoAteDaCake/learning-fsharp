@@ -30,4 +30,5 @@ let urlToPath =
 
 let topLevelRoutes =
     [ (Url.Home, "Home")
-      (Url.Bookmarks, "Bookmarks") ]
+      (Url.Bookmarks, "Bookmarks")
+      (Url.NotFound, "NotFound") ]

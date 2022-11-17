@@ -23,8 +23,15 @@ module Interop =
 [<Erase>]
 module RootModule =
 
+    type ColFlex =
+        | Number of value: int
+        | None
+        | Auto
+        | String of value: string
+
+
     type Layout =
-        { Headerssss: obj
+        { Headersss: obj
           Content: obj
           Footer: obj }
 
@@ -40,6 +47,16 @@ module RootModule =
             Interop.mkButtonAttr "className" (String.concat " " names)
 
         static member inline disabled(value: bool) = Interop.mkButtonAttr "disabled" value
+
+        static member inline flex(value: ColFlex) =
+            let attr = "flex"
+            let fn = Interop.mkButtonAttr
+
+            match value with
+            | None -> fn attr "none"
+            | Auto -> fn attr "auto"
+            | String value -> fn attr value
+            | Number value -> fn attr value
 
 [<Erase>]
 

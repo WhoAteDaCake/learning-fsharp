@@ -80,6 +80,15 @@ let isInteropCall ld =
 
 let rec replaceInteropInExpr newCall =
     function
+    | SynExpr.LetOrUse (isRecursive, isUse, bindings, body, range1, synExprLetOrUseTrivia) ->
+        SynExpr.LetOrUse(
+            isRecursive,
+            isUse,
+            List.map (replaceInteropInSynBinding newCall) bindings,
+            replaceInteropInExpr newCall body,
+            range1,
+            synExprLetOrUseTrivia
+        )
     | SynExpr.App (exprAtomicFlag, isInfix, funcExpr, argExpr, range) ->
         SynExpr.App(exprAtomicFlag, isInfix, replaceInteropInExpr newCall funcExpr, argExpr, range)
     | SynExpr.LongIdent (isOptional, longDotId, altNameRefCall, range) ->
@@ -92,7 +101,7 @@ let rec replaceInteropInExpr newCall =
         SynExpr.LongIdent(isOptional, longDotId, altNameRefCall, range)
     | item -> item
 
-let replaceInteropInSynBinding
+and replaceInteropInSynBinding
     newCall
     (SynBinding (synAccessOption,
                  synBindingKind,

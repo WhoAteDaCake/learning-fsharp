@@ -15,6 +15,14 @@ type IButtonProperty =
     interface
     end
 
+and IRowProperty =
+    interface
+    end
+
+and IColProperty =
+    interface
+    end
+
 and ILayoutProperty =
     interface
     end
@@ -31,12 +39,39 @@ and ILayoutContentProperty =
 [<Erase>]
 module Interop =
     let inline mkButtonAttr (key: string) (value: obj) : IButtonProperty = unbox (key, value)
+    let inline mkRowAttr (key: string) (value: obj) : IRowProperty = unbox (key, value)
+    let inline mkColAttr (key: string) (value: obj) : IColProperty = unbox (key, value)
     let inline mkLayoutAttr (key: string) (value: obj) : ILayoutProperty = unbox (key, value)
     let inline mkLayoutHeaderAttr (key: string) (value: obj) : ILayoutHeaderProperty = unbox (key, value)
     let inline mkLayoutContentAttr (key: string) (value: obj) : ILayoutContentProperty = unbox (key, value)
 
 [<Erase>]
 module AntdReact =
+
+    type ColFlex =
+        | Number of value: int
+        | None
+        | Auto
+        | String of value: string
+
+
+    [<StringEnum>]
+    type RowJustify =
+        | Start
+        | End
+        | Center
+        | [<CompiledName("spaced-around")>] SpaceAround
+        | [<CompiledName("spaced-between")>] SpaceBetween
+        | [<CompiledName("spaced-evenly")>] SpaceEvenly
+
+
+    [<StringEnum>]
+    type RowAlign =
+        | Top
+        | Middle
+        | Bottom
+        | Stretch
+
 
     type Layout =
         { Header: obj
@@ -56,6 +91,54 @@ module AntdReact =
 
         static member inline disabled(value: bool) = Interop.mkButtonAttr "disabled" value
         static member inline label(value: string) = Interop.mkButtonAttr "label" value
+
+    [<Erase>]
+
+    type row =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkRowAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<IRowProperty> (prop.children elements)
+
+        static member inline classNames(value: string) = Interop.mkRowAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkRowAttr "className" (String.concat " " names)
+
+        static member inline align(value: RowAlign) = Interop.mkRowAttr "align" value
+        static member inline justify(value: RowJustify) = Interop.mkRowAttr "justify" value
+        static member inline wrap(value: bool) = Interop.mkRowAttr "wrap" value
+
+    [<Erase>]
+
+    type col =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkColAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<IColProperty> (prop.children elements)
+
+        static member inline classNames(value: string) = Interop.mkColAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkColAttr "className" (String.concat " " names)
+
+        static member inline span(value: int) = Interop.mkColAttr "span" value
+        static member inline pull(value: int) = Interop.mkColAttr "pull" value
+        static member inline push(value: int) = Interop.mkColAttr "push" value
+        static member inline offset(value: int) = Interop.mkColAttr "offset" value
+        static member inline offset2(value: int) = Interop.mkColAttr "offset" value
+
+        static member inline flex(value: ColFlex) =
+            let attr = "flex"
+            let fn = Interop.mkColAttr
+
+            match value with
+            | None -> fn attr "none"
+            | Auto -> fn attr "auto"
+            | String value -> fn attr value
+            | Number value -> fn attr value
 
     [<Erase>]
 
@@ -112,6 +195,12 @@ type Antd =
     class
         static member inline button(properties: IButtonProperty list) =
             Interop.reactApi.createElement (import "Button" "antd", createObj !!properties)
+
+        static member inline row(properties: IRowProperty list) =
+            Interop.reactApi.createElement (import "Row" "antd", createObj !!properties)
+
+        static member inline col(properties: IColProperty list) =
+            Interop.reactApi.createElement (import "Col" "antd", createObj !!properties)
 
         static member inline layout(properties: ILayoutProperty list) =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)

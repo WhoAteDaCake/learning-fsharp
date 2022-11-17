@@ -40,8 +40,63 @@ module rec AntdReact =
 
         static member inline disabled(value: bool) = Interop.attr "disabled" value
         static member inline label(value: string) = Interop.attr "label" value
-    // static member inline label2(value: string) = Interop.attr "label2" value
 
+
+    [<Generator.Included>]
+    [<StringEnum>]
+    type RowAlign =
+        | Top
+        | Middle
+        | Bottom
+        | Stretch
+
+    [<Generator.Included>]
+    [<StringEnum>]
+    type RowJustify =
+        | Start
+        | End
+        | Center
+        | [<CompiledName("spaced-around")>] SpaceAround
+        | [<CompiledName("spaced-between")>] SpaceBetween
+        | [<CompiledName("spaced-evenly")>] SpaceEvenly
+
+    [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
+    type row =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (import "Row" "antd", createObj !!properties)
+
+        static member inline align(value: RowAlign) = Interop.attr "align" value
+        static member inline justify(value: RowJustify) = Interop.attr "justify" value
+
+        static member inline wrap(value: bool) = Interop.attr "wrap" value
+
+    [<Generator.Included>]
+    type ColFlex =
+        | Number of value: int
+        | None
+        | Auto
+        | String of value: string
+
+    [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
+    type col =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (import "Col" "antd", createObj !!properties)
+
+        static member inline span(value: int) = Interop.attr "span" value
+        static member inline pull(value: int) = Interop.attr "pull" value
+        static member inline push(value: int) = Interop.attr "push" value
+        static member inline offset(value: int) = Interop.attr "offset" value
+        static member inline offset2(value: int) = Interop.attr "offset" value
+
+        static member inline flex(value: ColFlex) =
+            let attr = "flex"
+            let fn = Interop.attr
+
+            match value with
+            | None -> fn attr "none"
+            | Auto -> fn attr "auto"
+            | String value -> fn attr value
+            | Number value -> fn attr value
 
 
     [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
