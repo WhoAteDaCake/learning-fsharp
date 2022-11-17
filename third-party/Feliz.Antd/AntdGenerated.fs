@@ -110,16 +110,16 @@ module AntdReact =
 
 type Antd =
     class
-        static member inline button(properties: Interop.inlined list) =
+        static member inline button(properties: IButtonProperty list) =
             Interop.reactApi.createElement (import "Button" "antd", createObj !!properties)
 
-        static member inline layout(properties: Interop.inlined list) =
+        static member inline layout(properties: ILayoutProperty list) =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
 
-        static member inline layoutHeader(properties: Interop.inlined list) =
+        static member inline layoutHeader(properties: ILayoutHeaderProperty list) =
             Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Header, createObj !!properties)
 
-        static member inline layoutContent(properties: Interop.inlined list) =
+        static member inline layoutContent(properties: ILayoutContentProperty list) =
             Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Content, createObj !!properties)
     end
 
