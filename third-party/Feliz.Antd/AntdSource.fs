@@ -1,5 +1,6 @@
 namespace Generated.Feliz
 
+open Browser.Types
 open Myriad.Plugins
 open Fable.Core.JsInterop
 open Fable.Core
@@ -70,7 +71,7 @@ module rec AntdReact =
 
         static member inline wrap(value: bool) = Interop.attr "wrap" value
 
-    [<Generator.Included>]
+    [<Generator.Included; RequireQualifiedAccess>]
     type ColFlex =
         | Number of value: int
         | None
@@ -86,17 +87,16 @@ module rec AntdReact =
         static member inline pull(value: int) = Interop.attr "pull" value
         static member inline push(value: int) = Interop.attr "push" value
         static member inline offset(value: int) = Interop.attr "offset" value
-        static member inline offset2(value: int) = Interop.attr "offset" value
 
         static member inline flex(value: ColFlex) =
-            let attr = "flex"
-            let fn = Interop.attr
+            let output: obj =
+                match value with
+                | ColFlex.None -> "none"
+                | ColFlex.Auto -> "auto"
+                | ColFlex.String value -> value
+                | ColFlex.Number value -> value
 
-            match value with
-            | None -> fn attr "none"
-            | Auto -> fn attr "auto"
-            | String value -> fn attr value
-            | Number value -> fn attr value
+            Interop.attr "flex" output
 
 
     [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
@@ -119,6 +119,80 @@ module rec AntdReact =
     type layoutContent =
         static member inline create(properties: Interop.inlined list) =
             Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Content, createObj !!properties)
+
+    [<Generator.Included>]
+    type MenuItemType =
+        | MenuItemType of
+            {| danger: bool option
+               disabled: bool option
+               icon: ReactElement option
+               key: string
+               label: ReactElement
+               title: string |}
+
+    [<Generator.Included; StringEnum;RequireQualifiedAccess>]
+    type MenuMode =
+        | Horizontal
+        | Inline
+        | [<CompiledName("vertical-left")>] VerticalLeft
+        | [<CompiledName("vertical-right")>] VerticalRight
+
+
+    [<Generator.Included; StringEnum;RequireQualifiedAccess>]
+    type MenuTheme =
+        | Dark
+        | Light
+
+    [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
+    type menu =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (import "Menu" "antd", createObj !!properties)
+
+        static member inline defaultOpenKeys(value: string seq) = Interop.attr "defaultOpenKeys" (Array.ofSeq value)
+
+        static member inline defaultSelectedKeys(value: string seq) =
+            Interop.attr "defaultSelectedKeys" (Array.ofSeq value)
+
+        static member inline selectedKeys(value: string seq) =
+            Interop.attr "selectedKeys" (Array.ofSeq value)
+
+
+        static member inline mode(value: MenuMode) = Interop.attr "mode" value
+
+        static member inline theme(value: MenuTheme) = Interop.attr "theme" value
+
+        static member inline items(value: MenuItemType list) =
+            let attrs =
+                List.map
+                    (function
+                    | MenuItemType obj -> obj)
+                    value
+
+            Interop.attr "items" (Array.ofSeq attrs)
+
+
+    [<Generator.Included>]
+    type BreadcrumbImport = { Item: obj }
+
+    [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
+    type breadcrumb =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (import "Breadcrumb" "antd", createObj !!properties)
+
+    [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
+    type breadcrumbItem =
+        static member inline create(properties: Interop.inlined list) =
+            Interop.reactApi.createElement (
+                (import<AntdReact.BreadcrumbImport> "Breadcrumb" "antd")
+                    .Item,
+                createObj !!properties
+            )
+
+        static member inline href(value: string) = Interop.attr "href" value
+
+        static member inline onClick(value: MouseEvent -> unit) = Interop.attr "onClick" value
+
+
 
 [<Generator.LibraryRoot>]
 type Antd =

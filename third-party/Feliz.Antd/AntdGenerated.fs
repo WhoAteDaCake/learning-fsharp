@@ -7,6 +7,7 @@
 
 namespace Feliz
 
+open Browser.Types
 open Fable.Core.JsInterop
 open Fable.Core
 open Feliz
@@ -35,6 +36,18 @@ and ILayoutContentProperty =
     interface
     end
 
+and IMenuProperty =
+    interface
+    end
+
+and IBreadcrumbProperty =
+    interface
+    end
+
+and IBreadcrumbItemProperty =
+    interface
+    end
+
 [<RequireQualifiedAccess>]
 [<Erase>]
 module Interop =
@@ -44,10 +57,38 @@ module Interop =
     let inline mkLayoutAttr (key: string) (value: obj) : ILayoutProperty = unbox (key, value)
     let inline mkLayoutHeaderAttr (key: string) (value: obj) : ILayoutHeaderProperty = unbox (key, value)
     let inline mkLayoutContentAttr (key: string) (value: obj) : ILayoutContentProperty = unbox (key, value)
+    let inline mkMenuAttr (key: string) (value: obj) : IMenuProperty = unbox (key, value)
+    let inline mkBreadcrumbAttr (key: string) (value: obj) : IBreadcrumbProperty = unbox (key, value)
+    let inline mkBreadcrumbItemAttr (key: string) (value: obj) : IBreadcrumbItemProperty = unbox (key, value)
 
 [<Erase>]
 module AntdReact =
 
+    type BreadcrumbImport = { Item: obj }
+
+    [<StringEnum; RequireQualifiedAccess>]
+    type MenuTheme =
+        | Dark
+        | Light
+
+    [<StringEnum; RequireQualifiedAccess>]
+    type MenuMode =
+        | Horizontal
+        | Inline
+        | [<CompiledName("vertical-left")>] VerticalLeft
+        | [<CompiledName("vertical-right")>] VerticalRight
+
+
+    type MenuItemType =
+        | MenuItemType of
+            {| danger: bool option
+               disabled: bool option
+               icon: ReactElement option
+               key: string
+               label: ReactElement
+               title: string |}
+
+    [<RequireQualifiedAccess>]
     type ColFlex =
         | Number of value: int
         | None
@@ -128,17 +169,16 @@ module AntdReact =
         static member inline pull(value: int) = Interop.mkColAttr "pull" value
         static member inline push(value: int) = Interop.mkColAttr "push" value
         static member inline offset(value: int) = Interop.mkColAttr "offset" value
-        static member inline offset2(value: int) = Interop.mkColAttr "offset" value
 
         static member inline flex(value: ColFlex) =
-            let attr = "flex"
-            let fn = Interop.mkColAttr
+            let output: obj =
+                match value with
+                | ColFlex.None -> "none"
+                | ColFlex.Auto -> "auto"
+                | ColFlex.String value -> value
+                | ColFlex.Number value -> value
 
-            match value with
-            | None -> fn attr "none"
-            | Auto -> fn attr "auto"
-            | String value -> fn attr value
-            | Number value -> fn attr value
+            Interop.mkColAttr "flex" output
 
     [<Erase>]
 
@@ -189,6 +229,77 @@ module AntdReact =
         static member inline className(names: seq<string>) =
             Interop.mkLayoutContentAttr "className" (String.concat " " names)
 
+    [<Erase>]
+
+    type menu =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkMenuAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<IMenuProperty> (prop.children elements)
+
+        static member inline classNames(value: string) = Interop.mkMenuAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkMenuAttr "className" (String.concat " " names)
+
+        static member inline defaultOpenKeys(value: string seq) =
+            Interop.mkMenuAttr "defaultOpenKeys" (Array.ofSeq value)
+
+        static member inline defaultSelectedKeys(value: string seq) =
+            Interop.mkMenuAttr "defaultSelectedKeys" (Array.ofSeq value)
+
+        static member inline selectedKeys(value: string seq) =
+            Interop.mkMenuAttr "selectedKeys" (Array.ofSeq value)
+
+        static member inline mode(value: MenuMode) = Interop.mkMenuAttr "mode" value
+        static member inline theme(value: MenuTheme) = Interop.mkMenuAttr "theme" value
+
+        static member inline items(value: MenuItemType list) =
+            let attrs =
+                List.map
+                    (function
+                    | MenuItemType obj -> obj)
+                    value
+
+            Interop.mkMenuAttr "items" (Array.ofSeq attrs)
+
+    [<Erase>]
+
+    type breadcrumb =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkBreadcrumbAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<IBreadcrumbProperty> (prop.children elements)
+
+        static member inline classNames(value: string) =
+            Interop.mkBreadcrumbAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkBreadcrumbAttr "className" (String.concat " " names)
+
+    [<Erase>]
+
+    type breadcrumbItem =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkBreadcrumbItemAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<IBreadcrumbItemProperty> (prop.children elements)
+
+        static member inline classNames(value: string) =
+            Interop.mkBreadcrumbItemAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkBreadcrumbItemAttr "className" (String.concat " " names)
+
+        static member inline href(value: string) =
+            Interop.mkBreadcrumbItemAttr "href" value
+
+        static member inline onClick(value: MouseEvent -> unit) =
+            Interop.mkBreadcrumbItemAttr "onClick" value
+
 [<Erase>]
 
 type Antd =
@@ -210,5 +321,18 @@ type Antd =
 
         static member inline layoutContent(properties: ILayoutContentProperty list) =
             Interop.reactApi.createElement ((import<AntdReact.Layout> "Layout" "antd").Content, createObj !!properties)
+
+        static member inline menu(properties: IMenuProperty list) =
+            Interop.reactApi.createElement (import "Menu" "antd", createObj !!properties)
+
+        static member inline breadcrumb(properties: IBreadcrumbProperty list) =
+            Interop.reactApi.createElement (import "Breadcrumb" "antd", createObj !!properties)
+
+        static member inline breadcrumbItem(properties: IBreadcrumbItemProperty list) =
+            Interop.reactApi.createElement (
+                (import<AntdReact.BreadcrumbImport> "Breadcrumb" "antd")
+                    .Item,
+                createObj !!properties
+            )
     end
 

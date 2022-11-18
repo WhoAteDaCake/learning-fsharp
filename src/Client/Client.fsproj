@@ -19,6 +19,7 @@
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
         <Folder Include="Components" />
+        <Content Include=".editorconfig" />
         <PackageReference Include="Feliz.Router" Version="3.8.0" />
         <ProjectReference Include="..\..\third-party\Feliz.Antd\Feliz.Antd.fsproj" />
 

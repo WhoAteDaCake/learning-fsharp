@@ -1,5 +1,6 @@
 module Client.Routing
 
+[<RequireQualifiedAccess>]
 module Routes =
     [<Literal>]
     let Bookmarks = "bookmarks"
@@ -22,13 +23,13 @@ let parseUrl =
     | [ Routes.Bookmarks ] -> Url.Home
     | _ -> Url.NotFound
 
-let urlToPath =
+let urlToString =
     function
-    | Url.Home -> "/" + Routes.Home
-    | Url.Bookmarks -> "/" + Routes.Bookmarks
-    | Url.NotFound -> "/" + Routes.NotFound
+    | Url.Home -> Routes.Home
+    | Url.Bookmarks -> Routes.Bookmarks
+    | Url.NotFound -> Routes.NotFound
 
 let topLevelRoutes =
     [ (Url.Home, "Home")
-      (Url.Bookmarks, "Bookmarks")
-      (Url.NotFound, "NotFound") ]
+      (Url.Bookmarks, "Bookmarks") ]
+    |> List.map (fun (u, label) -> (u, urlToString u, label))
