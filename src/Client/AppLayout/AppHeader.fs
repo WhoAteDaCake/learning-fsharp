@@ -32,11 +32,10 @@ let view (model: Model) (dispatch: Msg -> unit) =
         topLevelRoutes
         |> List.map (fun (rUrl, key, name) ->
             let color =
-                if rUrl.ToString() = model.CurrentUrl.ToString() then
+                if rUrl = model.CurrentUrl then
                     style.color "#1677ff"
                 else
                     style.color "#fff"
-            console.log(color, rUrl.ToString(), model.CurrentUrl.ToString())
             let href = Router.formatPath key
             MenuItemType.MenuItemType(
                 {| danger = Some false
