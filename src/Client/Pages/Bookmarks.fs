@@ -60,7 +60,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
 
 let view (model: Model) (dispatch: Msg -> unit) =
     Html.div [
-        prop.classes ["m-4"]
+        prop.classes ["mt-1"]
         prop.children [
             Html.span [
                 prop.text "Hello"
