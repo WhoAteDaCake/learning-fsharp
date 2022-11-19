@@ -50,14 +50,18 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         let data, cmd = AppHeader.update msg model.Header
         { model with Header = data }, Cmd.map HeaderMsg cmd
     | UrlChanged newUrl, _ ->
-        let show page =
-            { model with Page = page; Url = newUrl }
-        match newUrl with
-        | Url.Home ->
-            let model, cmd = Home.init ()
-            show (Page.Home model), Cmd.map HomeMsg cmd
-        | Url.NotFound -> show Page.NotFound, Cmd.none
-        | Url.Bookmarks -> show Page.Bookmark, Cmd.none
+        let page, pageCmd =
+            match newUrl with
+            | Url.Home ->
+                let model, cmd = Home.init ()
+                (Page.Home model), Cmd.map HomeMsg cmd
+            | Url.NotFound -> Page.NotFound, Cmd.none
+            | Url.Bookmarks -> Page.Bookmark, Cmd.none
+        // Ensure Header is informed
+        let headerModel, headerCmd = AppHeader.init newUrl
+        let cmd = Cmd.batch [pageCmd; Cmd.map HeaderMsg headerCmd]
+        { model with Page = page; Url = newUrl; Header = headerModel }, cmd
+
     //
     | _, _ -> model, Cmd.none
 

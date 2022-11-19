@@ -31,11 +31,12 @@ let view (model: Model) (dispatch: Msg -> unit) =
     let items =
         topLevelRoutes
         |> List.map (fun (rUrl, key, name) ->
-            let textProps =
-                if rUrl.Equals model.CurrentUrl then
-                    [style.fontWeight 700]
+            let color =
+                if rUrl.ToString() = model.CurrentUrl.ToString() then
+                    style.color "#1677ff"
                 else
-                     []
+                    style.color "#fff"
+            console.log(color, rUrl.ToString(), model.CurrentUrl.ToString())
             let href = Router.formatPath key
             MenuItemType.MenuItemType(
                 {| danger = Some false
@@ -45,7 +46,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                    label = Html.a [
                        prop.onClick (goToUrl dispatch href)
                        prop.href href
-                       // prop.style textProps
+                       prop.style [color]
                        prop.text name
                    ]
                    title = name |}
