@@ -24,7 +24,7 @@ type Msg =
 
 let init () : Model * Cmd<Msg> =
     let initialUrl =
-        parseUrl (Router.currentUrl ())
+        parseUrl (Router.currentPath ())
 
     let page, cmd =
         match initialUrl with
@@ -44,12 +44,12 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | UrlChanged newUrl, _ ->
         let show page =
             { model with Page = page; Url = newUrl }
-
         match newUrl with
         | Url.Home ->
             let model, cmd = Home.init ()
             show (Page.Home model), Cmd.map HomeMsg cmd
         | Url.NotFound -> show Page.NotFound, Cmd.none
+        | Url.Bookmarks -> show Page.Bookmark, Cmd.none
     //
     | _, _ -> model, Cmd.none
 
@@ -75,39 +75,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
         ]
 
     Feliz.React.router [
+        router.pathMode
         router.onUrlChanged (parseUrl >> UrlChanged >> dispatch)
         router.children [ layout ]
     ]
-
-// let view (model: Model) (dispatch: Msg -> unit) =
-//     Bulma.hero [
-//         hero.isFullHeight
-//         color.isPrimary
-//         prop.style [
-//             style.backgroundSize "cover"
-//             style.backgroundImageUrl "https://unsplash.it/1200/900?random"
-//             style.backgroundPosition "no-repeat center center fixed"
-//         ]
-//         prop.children [
-//             Bulma.heroHead [
-//                 Bulma.navbar [
-//                     Bulma.container [ navBrand ]
-//                 ]
-//             ]
-//             Bulma.heroBody [
-//                 Bulma.container [
-//                     Bulma.column [
-//                         column.is6
-//                         column.isOffset3
-//                         prop.children [
-//                             Bulma.title [
-//                                 text.hasTextCentered
-//                                 prop.text "SafeApp"
-//                             ]
-//                             containerBox model dispatch
-//                         ]
-//                     ]
-//                 ]
-//             ]
-//         ]
-//     ]

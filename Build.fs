@@ -73,6 +73,13 @@ Target.create "RunOnly" (fun _ ->
     |> runParallel)
 
 
+Target.create "UiOnly" (fun _ ->
+    run dotnet "build" sharedPath
+
+    [ "client", dotnet "fable watch -o output -s --run npm run start" clientPath ]
+    |> runParallel)
+
+
 Target.create "RunTests" (fun _ ->
     run dotnet "build" sharedTestsPath
 

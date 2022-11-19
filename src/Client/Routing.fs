@@ -6,7 +6,7 @@ module Routes =
     let Bookmarks = "bookmarks"
 
     [<Literal>]
-    let Home = "home"
+    let Home = ""
 
     [<Literal>]
     let NotFound = "404"

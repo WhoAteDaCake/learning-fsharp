@@ -4,11 +4,11 @@ open Client.Routing
 open Fable.Core.JS
 open Fake.Core
 open Feliz
+open Feliz.Router
 open Feliz.AntdReact
 
 let view (url: Url) =
     let offset = 24 / 8
-
     let items =
         topLevelRoutes
         |> List.map (fun (rUrl, key, name) ->
@@ -17,18 +17,19 @@ let view (url: Url) =
                     [style.fontWeight 700]
                 else
                      []
+            console.log(rUrl.ToString(), url.ToString(), (rUrl = url))
             MenuItemType.MenuItemType(
                 {| danger = Some false
                    disabled = Some false
                    icon = None
                    key = key
-                   label = Html.span [
+                   label = Html.a [
+                       prop.href (Router.formatPath key)
                        prop.style textProps
                        prop.text name
                    ]
                    title = name |}
             ))
-
     Antd.row [
         row.children [
             Antd.col [
