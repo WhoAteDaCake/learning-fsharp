@@ -20,7 +20,7 @@ type Url =
 let parseUrl =
     function
     | [] -> Url.Home
-    | [ Routes.Bookmarks ] -> Url.Home
+    | [ Routes.Bookmarks ] -> Url.Bookmarks
     | _ -> Url.NotFound
 
 let urlToString =

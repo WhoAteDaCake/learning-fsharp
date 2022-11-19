@@ -1,31 +1,51 @@
 module Client.AppLayout.AppHeader
 
+open Browser.Types
 open Client.Routing
 open Fable.Core.JS
 open Fake.Core
 open Feliz
 open Feliz.Router
 open Feliz.AntdReact
+open Elmish
 
-let view (url: Url) =
+type Model = { CurrentUrl : Url }
+type Msg =
+    | NavigateTo of string
+
+let update msg state =
+  match msg with
+  | NavigateTo href -> state, Cmd.navigatePath(href)
+
+let goToUrl (dispatch: Msg -> unit) (href: string) (e: MouseEvent) =
+    // disable full page refresh
+    e.preventDefault()
+    // dispatch msg
+    dispatch (NavigateTo href)
+
+let init (url: Url) : Model * Cmd<Msg> =
+    {CurrentUrl = url}, Cmd.none
+
+let view (model: Model) (dispatch: Msg -> unit) =
     let offset = 24 / 8
     let items =
         topLevelRoutes
         |> List.map (fun (rUrl, key, name) ->
             let textProps =
-                if rUrl.Equals url then
+                if rUrl.Equals model.CurrentUrl then
                     [style.fontWeight 700]
                 else
                      []
-            console.log(rUrl.ToString(), url.ToString(), (rUrl = url))
+            let href = Router.formatPath key
             MenuItemType.MenuItemType(
                 {| danger = Some false
                    disabled = Some false
                    icon = None
                    key = key
                    label = Html.a [
-                       prop.href (Router.formatPath key)
-                       prop.style textProps
+                       prop.onClick (goToUrl dispatch href)
+                       prop.href href
+                       // prop.style textProps
                        prop.text name
                    ]
                    title = name |}
@@ -41,7 +61,7 @@ let view (url: Url) =
                         menu.mode MenuMode.Horizontal
                         menu.items items
                         menu.selectedKeys [
-                            urlToString url
+                            urlToString model.CurrentUrl
                         ]
                     ]
                 ]
