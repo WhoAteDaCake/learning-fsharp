@@ -7,7 +7,6 @@
 
 namespace Feliz
 
-open Myriad.Plugins
 open Fable.Core.JsInterop
 open Fable.Core
 open Feliz
@@ -24,8 +23,15 @@ module Interop =
 [<Erase>]
 module RootModule =
 
+    type ColFlex =
+        | Number of value: int
+        | None
+        | Auto
+        | String of value: string
+
+
     type Layout =
-        { Headers: obj
+        { Headersss: obj
           Content: obj
           Footer: obj }
 
@@ -42,11 +48,21 @@ module RootModule =
 
         static member inline disabled(value: bool) = Interop.mkButtonAttr "disabled" value
 
+        static member inline flex(value: ColFlex) =
+            let attr = "flex"
+            let fn = Interop.mkButtonAttr
+
+            match value with
+            | None -> fn attr "none"
+            | Auto -> fn attr "auto"
+            | String value -> fn attr value
+            | Number value -> fn attr value
+
 [<Erase>]
 
 type Antd =
     class
-        static member inline button(properties: Interop.inlined list) =
+        static member inline button(properties: IButtonProperty list) =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
     end
 

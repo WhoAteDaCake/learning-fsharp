@@ -4,30 +4,24 @@
         <TargetFramework>net6.0</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-    <ItemGroup>
-        <Compile Include="Types.fs"/>
-        <Compile Include="Interop.fs"/>
-        <Compile Include="Layout\Layout.fs"/>
-        <Compile Include="Layout\LayoutHeader.fs"/>
-        <Compile Include="Layout\LayoutContent.fs"/>
-        <Compile Include="Grid\Row.fs"/>
-        <Compile Include="Button.fs"/>
-        <Compile Include="Antd.fs"/>
-        <Content Include="paket.references"/>
+    <ItemGroup Condition="'$(BUILD_GENERATE)' == ''">
         <Compile Include="AntdSource.fs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="paket.references"/>
         <Compile Include="AntdGenerated.fs">
             <MyriadFile>AntdSource.fs</MyriadFile>
             <MyriadNameSpace>Feliz</MyriadNameSpace>
         </Compile>
     </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Myriad.Sdk" Version="0.8.1"/>
-        <PackageReference Include="Myriad.Core" Version="0.8.1"/>
-        <PackageReference Include="Myriad.Plugins" Version="0.8.1"/>
+    <ItemGroup Condition="'$(BUILD_GENERATE)' == ''">
+        <PackageReference PrivateAssets="all" Include="Myriad.Sdk" Version="0.8.1"/>
+        <PackageReference PrivateAssets="all" Include="Myriad.Core" Version="0.8.1"/>
+        <PackageReference PrivateAssets="all" Include="Myriad.Plugins" Version="0.8.1"/>
     </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj"/>
+    <ItemGroup Condition="'$(BUILD_GENERATE)' == ''">
+        <ProjectReference PrivateAssets="all" Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj"/>
     </ItemGroup>
-    <Import Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props"/>
+    <Import Condition="'$(BUILD_GENERATE)' == ''" Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props"/>
     <Import Project="..\..\.paket\Paket.Restore.targets"/>
 </Project>

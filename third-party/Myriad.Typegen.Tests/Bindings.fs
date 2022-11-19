@@ -30,9 +30,17 @@ type WithChildren =
 module RootModule =
     [<Generator.Included>]
     type Layout =
-        { Headers: obj
+        { Headersss: obj
           Content: obj
           Footer: obj }
+
+    [<Generator.Included>]
+    type ColFlex =
+        | Number of value: int
+        | None
+        | Auto
+        | String of value: string
+
 
     [<Generator.Component;
       Generator.ExtendsMethods(typeof<WithClass>,
@@ -44,6 +52,18 @@ module RootModule =
             Interop.reactApi.createElement (import "Layout" "antd", createObj !!properties)
 
         static member inline disabled(value: bool) = Interop.attr "disabled" value
+
+        static member inline flex(value: ColFlex) =
+            let attr = "flex"
+            let fn = Interop.attr
+
+            match value with
+            | None -> fn attr "none"
+            | Auto -> fn attr "auto"
+            | String value -> fn attr value
+            | Number value -> fn attr value
+
+
 
 
 [<Generator.LibraryRoot>]

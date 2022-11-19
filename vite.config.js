@@ -1,6 +1,9 @@
 // vite.config.js
 import { defineConfig } from 'vite'
 import dns from 'dns'
+import react from '@vitejs/plugin-react'
+import history from 'connect-history-api-fallback';
+import * as path from 'path'
 
 dns.setDefaultResultOrder('verbatim')
 
@@ -10,13 +13,9 @@ export default defineConfig({
         // necessary for segment analytics lib to work
         global: {},
     },
-    css: {
-        preprocessorOptions: {
-            less: {
-                javascriptEnabled: true,
-            },
-        },
-    },
+    appType: 'spa',
+    plugins: [react()],
+    // plugins: [myPlugin()],
     server: {
         proxy: {
             '/api/**': {
