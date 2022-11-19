@@ -14,53 +14,77 @@ open Client.Routing
 type Page =
     | Home of Home.Model
     | NotFound
-    | Bookmark
+    | Bookmark of Bookmarks.Model
 
-type Model = { Page: Page; Url: Url; Header: AppHeader.Model }
+type Model =
+    { Page: Page
+      Url: Url
+      Header: AppHeader.Model }
 
 type Msg =
     | HomeMsg of Home.Msg
-    | UrlChanged of Url
     | HeaderMsg of AppHeader.Msg
+    | BookmarkMsg of Bookmarks.Msg
+    | UrlChanged of Url
+
+let onUrlChange = function
+| Url.Home ->
+    let model, cmd = Home.init ()
+    Page.Home model, Cmd.map HomeMsg cmd
+| Url.Bookmarks ->
+    let model, cmd = Bookmarks.init ()
+    Page.Bookmark model, Cmd.map BookmarkMsg cmd
+| Url.NotFound -> Page.NotFound, Cmd.none
 
 let init () : Model * Cmd<Msg> =
     let initialUrl =
         parseUrl (Router.currentPath ())
 
-    let page, pageCmd =
-        match initialUrl with
-        | Url.Home ->
-            let model, cmd = Home.init ()
-            Page.Home model, Cmd.map HomeMsg cmd
-        | Url.NotFound -> Page.NotFound, Cmd.none
-        | Url.Bookmarks -> Page.Bookmark, Cmd.none
+    let page, pageCmd = onUrlChange initialUrl
 
     let appHeader, appCmd =
         AppHeader.init initialUrl
 
-    let cmd = Cmd.batch [pageCmd; Cmd.map HeaderMsg appCmd]
-    { Page = page; Url = initialUrl; Header = appHeader }, cmd
+    let cmd =
+        Cmd.batch [
+            pageCmd
+            Cmd.map HeaderMsg appCmd
+        ]
+
+    { Page = page
+      Url = initialUrl
+      Header = appHeader },
+    cmd
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg, model.Page with
     | HomeMsg msg, Page.Home state ->
         let data, cmd = Home.update msg state
         { model with Page = Page.Home data }, Cmd.map HomeMsg cmd
-    | HeaderMsg msg, _->
-        let data, cmd = AppHeader.update msg model.Header
+    | BookmarkMsg msg, Page.Bookmark state ->
+        let data, cmd = Bookmarks.update msg state
+        { model with Page = Page.Bookmark data }, Cmd.map BookmarkMsg cmd
+    | HeaderMsg msg, _ ->
+        let data, cmd =
+            AppHeader.update msg model.Header
         { model with Header = data }, Cmd.map HeaderMsg cmd
     | UrlChanged newUrl, _ ->
-        let page, pageCmd =
-            match newUrl with
-            | Url.Home ->
-                let model, cmd = Home.init ()
-                (Page.Home model), Cmd.map HomeMsg cmd
-            | Url.NotFound -> Page.NotFound, Cmd.none
-            | Url.Bookmarks -> Page.Bookmark, Cmd.none
+        let page, pageCmd = onUrlChange newUrl
         // Ensure Header is informed
-        let headerModel, headerCmd = AppHeader.init newUrl
-        let cmd = Cmd.batch [pageCmd; Cmd.map HeaderMsg headerCmd]
-        { model with Page = page; Url = newUrl; Header = headerModel }, cmd
+        let headerModel, headerCmd =
+            AppHeader.init newUrl
+
+        let cmd =
+            Cmd.batch [
+                pageCmd
+                Cmd.map HeaderMsg headerCmd
+            ]
+
+        { model with
+            Page = page
+            Url = newUrl
+            Header = headerModel },
+        cmd
 
     //
     | _, _ -> model, Cmd.none
@@ -72,17 +96,20 @@ let view (model: Model) (dispatch: Msg -> unit) =
         match model.Page with
         | Page.Home state -> Home.view state (HomeMsg >> dispatch)
         | Page.NotFound -> Html.div [ prop.text "Not found" ]
-        | Page.Bookmark -> Html.div [ prop.text "Bookmarks" ]
+        | Page.Bookmark state -> Bookmarks.view state (BookmarkMsg >> dispatch)
 
     let layout =
         Antd.layout [
+            layout.style [ style.margin -8 ]
             layout.children [
                 Antd.layoutHeader [
                     layoutHeader.children [
                         AppHeader.view model.Header (HeaderMsg >> dispatch)
                     ]
                 ]
-                currentPage
+                Antd.layoutContent [
+                    layoutContent.children [ currentPage ]
+                ]
             ]
         ]
 
