@@ -4,6 +4,7 @@ open Client
 open Client.Deferred
 open Elmish
 open Fable.React
+open Feliz
 
 type GraphLeaf =
     | Link of {| Id: int; Name: string; Url: string |}
@@ -53,8 +54,16 @@ let init () : Model * Cmd<Msg> =
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg with
     | Append _ -> model, Cmd.none
-    //
     | Load Started -> { model with Bookmarks = InProgress }, Cmd.none
     | Load (Finished result) -> { model with Bookmarks = Resolved result }, Cmd.none
+    | _ -> model, Cmd.none
 
-let view (model: Model) (dispatch: Msg -> unit) = str "Home page here"
+let view (model: Model) (dispatch: Msg -> unit) =
+    Html.div [
+        prop.classes ["m-4"]
+        prop.children [
+            Html.span [
+                prop.text "Hello"
+            ]
+        ]
+    ]

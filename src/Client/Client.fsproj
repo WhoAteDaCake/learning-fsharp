@@ -7,6 +7,7 @@
     <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
+        <Compile Include="Components\Tree.fs" />
         <Compile Include="Remote\Bookmarks.fs" />
         <Compile Include="Remote\Stats.fs" />
         <Compile Include="Routing.fs" />
@@ -16,9 +17,10 @@
         <Compile Include="Pages\Bookmarks.fs" />
 
         <Content Include="styles\styles.less" />
+
+        <Content Include="styles\tailwind.css" />
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
-        <Folder Include="Components" />
         <Content Include=".editorconfig" />
         <PackageReference Include="Feliz.Router" Version="3.8.0" />
         <ProjectReference Include="..\..\third-party\Feliz.Antd\Feliz.Antd.fsproj" />

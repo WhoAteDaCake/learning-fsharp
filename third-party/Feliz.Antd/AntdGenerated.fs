@@ -95,8 +95,7 @@ module AntdReact =
         | Auto
         | String of value: string
 
-
-    [<StringEnum>]
+    [<StringEnum; RequireQualifiedAccess>]
     type RowJustify =
         | Start
         | End
@@ -105,8 +104,7 @@ module AntdReact =
         | [<CompiledName("spaced-between")>] SpaceBetween
         | [<CompiledName("spaced-evenly")>] SpaceEvenly
 
-
-    [<StringEnum>]
+    [<StringEnum; RequireQualifiedAccess>]
     type RowAlign =
         | Top
         | Middle

@@ -42,17 +42,14 @@ module rec AntdReact =
         static member inline disabled(value: bool) = Interop.attr "disabled" value
         static member inline label(value: string) = Interop.attr "label" value
 
-
-    [<Generator.Included>]
-    [<StringEnum>]
+    [<Generator.Included;StringEnum;RequireQualifiedAccess>]
     type RowAlign =
         | Top
         | Middle
         | Bottom
         | Stretch
 
-    [<Generator.Included>]
-    [<StringEnum>]
+    [<Generator.Included;StringEnum;RequireQualifiedAccess>]
     type RowJustify =
         | Start
         | End
