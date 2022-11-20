@@ -199,9 +199,9 @@ module rec AntdReact =
     [<Generator.Included>]
     type TreeData =
         {
-            key: string
-            title: string
-            icon: ReactElement
+            key: U2<string, int>
+            title: U2<ReactElement, Func<TreeData, ReactElement>>
+            icon: U2<ReactElement, Func<TreeData, ReactElement>> option
             children: TreeData array
             disabled: bool
             selectable: bool
@@ -209,7 +209,7 @@ module rec AntdReact =
     [<Generator.Included>]
     type TreeMouseEvent<'T> =
         {
-            event: MouseEvent
+            event: React
             node: 'T
         }
     [<Generator.Included>]
@@ -279,7 +279,7 @@ module rec AntdReact =
         static member inline showLine (?v: bool) = Interop.attr "showLine" (Option.defaultValue true v)
         static member inline switcherIcon (v: ReactElement) = Interop.attr "switcherIcon" v
         static member inline titleRender (v: Func<'TEntity, ReactElement>) = Interop.attr "titleRender" v
-        static member inline treeData (v: 'TEntity seq) = Interop.attr "treeData" (Array.ofSeq v)
+        static member inline treeData (v: TreeData seq) = Interop.attr "treeData" (Array.ofSeq v)
         static member inline virtualize (?v: bool) = Interop.attr "virtual" (Option.defaultValue true v)
         static member inline onCheck (v: Func<string array, TreeCheckEvent<'T>, unit>) = Interop.attr "onCheck" v
         static member inline onDragEnd (v: TreeMouseEvent<'TEntity> -> unit) = Interop.attr "onDragEnd" v
@@ -288,7 +288,7 @@ module rec AntdReact =
         static member inline onDragOver (v: TreeMouseEvent<'TEntity> -> unit) = Interop.attr "onDragOver" v
         static member inline onDragStart (v: TreeMouseEvent<'TEntity> -> unit) = Interop.attr "onDragStart" v
         static member inline onDrop (v: TreeDropEvent<'TEntity> -> unit) = Interop.attr "onDrop" v
-        static member inline onExpand (v: Func<string array, TreeExpandEvent<'T>, unit>) = Interop.attr "onExpand" v
+        static member inline onExpand<'T> (v: Func<string array, TreeExpandEvent<'T>, unit>) = Interop.attr "onExpand" v
         static member inline onLoad (v: Func<string array, TreeMouseEvent<'T>, unit>) = Interop.attr "onLoad" v
         static member inline onRightClick (v: TreeMouseEvent<'TEntity> -> unit) = Interop.attr "onRightClick" v
         static member inline onSelect (v: Func<string array, TreeSelectedEvent<'T>, unit>) = Interop.attr "onSelect" v

@@ -350,14 +350,14 @@ module AntdReact =
 
     [<Erase>]
 
-    type tree =
+    type tree<'T> =
         static member inline style(properties: #IStyleAttribute list) =
             Interop.mkTreeAttr "style" (createObj !!properties)
 
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<ITreeProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkTreeAttr "className" value
+        static member inline classNames(value: 'T) = Interop.mkTreeAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkTreeAttr "className" (String.concat " " names)
