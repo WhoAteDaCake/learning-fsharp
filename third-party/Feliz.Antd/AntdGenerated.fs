@@ -7,6 +7,7 @@
 
 namespace Feliz
 
+open System
 open Browser.Types
 open Fable.Core.JsInterop
 open Fable.Core
@@ -48,6 +49,10 @@ and IBreadcrumbItemProperty =
     interface
     end
 
+and ITreeProperty =
+    interface
+    end
+
 [<RequireQualifiedAccess>]
 [<Erase>]
 module Interop =
@@ -60,9 +65,54 @@ module Interop =
     let inline mkMenuAttr (key: string) (value: obj) : IMenuProperty = unbox (key, value)
     let inline mkBreadcrumbAttr (key: string) (value: obj) : IBreadcrumbProperty = unbox (key, value)
     let inline mkBreadcrumbItemAttr (key: string) (value: obj) : IBreadcrumbItemProperty = unbox (key, value)
+    let inline mkTreeAttr (key: string) (value: obj) : ITreeProperty = unbox (key, value)
 
 [<Erase>]
 module AntdReact =
+
+    type TreeCheckEvent<'T> =
+        { [<CompiledName("checked")>]
+          isChecked: bool
+          checkedNodes: 'T array
+          event: Event
+          halfCheckedKeys: string array }
+
+
+    type TreeExpandEvent<'T> = { expanded: bool; node: 'T }
+
+
+    type TreeSelectedEvent<'T> =
+        { selected: bool
+          selectedNodes: 'T array
+          node: 'T
+          event: Event }
+
+
+    type TreeDropEvent<'T> =
+        { event: Event
+          node: 'T
+          dragNode: 'T
+          dragNodesKeys: string array
+          dropPosition: int
+          dropToGap: bool }
+
+
+    type TreeMouseEvent<'T> = { event: MouseEvent; node: 'T }
+
+
+    type TreeData =
+        { key: string
+          title: string
+          icon: ReactElement
+          children: TreeData array
+          disabled: bool
+          selectable: bool }
+
+    [<StringEnum; RequireQualifiedAccess>]
+    type DirectoryTreeExpandAction =
+        | Click
+        | DoubleClick
+
 
     type BreadcrumbImport = { Item: obj }
 
@@ -298,6 +348,107 @@ module AntdReact =
         static member inline onClick(value: MouseEvent -> unit) =
             Interop.mkBreadcrumbItemAttr "onClick" value
 
+    [<Erase>]
+
+    type tree =
+        static member inline style(properties: #IStyleAttribute list) =
+            Interop.mkTreeAttr "style" (createObj !!properties)
+
+        static member inline children(elements: Fable.React.ReactElement list) =
+            unbox<ITreeProperty> (prop.children elements)
+
+        static member inline classNames(value: string) = Interop.mkTreeAttr "className" value
+
+        static member inline className(names: seq<string>) =
+            Interop.mkTreeAttr "className" (String.concat " " names)
+
+        static member inline autoExpandParent(v: bool) = Interop.mkTreeAttr "autoExpandParent" v
+
+        static member inline blockNode(?v: bool) =
+            Interop.mkTreeAttr "blockNode" (Option.defaultValue true v)
+
+        static member inline checkable(?v: bool) =
+            Interop.mkTreeAttr "checkable" (Option.defaultValue true v)
+
+        static member inline checkedKeys(v: string seq) =
+            Interop.mkTreeAttr "checkedKeys" (Array.ofSeq v)
+
+        static member inline checkStrictly(?v: bool) =
+            Interop.mkTreeAttr "checkStrictly" (Option.defaultValue true v)
+
+        static member inline defaultCheckedKeys(v: string seq) =
+            Interop.mkTreeAttr "defaultCheckedKeys" (Array.ofSeq v)
+
+        static member inline defaultExpandAll(?v: bool) =
+            Interop.mkTreeAttr "defaultExpandAll" (Option.defaultValue true v)
+
+        static member inline defaultExpandedKeys(v: string seq) =
+            Interop.mkTreeAttr "defaultExpandedKeys" (Array.ofSeq v)
+
+        static member inline defaultExpandParent(?v: bool) =
+            Interop.mkTreeAttr "defaultExpandParent" (Option.defaultValue true v)
+
+        static member inline defaultSelectedKeys(v: string seq) =
+            Interop.mkTreeAttr "defaultSelectedKeys" (Array.ofSeq v)
+
+        static member inline disabled(?v: bool) =
+            Interop.mkTreeAttr "disabled" (Option.defaultValue true v)
+
+        static member inline draggable(?v: bool) =
+            Interop.mkTreeAttr "draggable" (Option.defaultValue true v)
+
+        static member inline expandedKeys(v: string seq) =
+            Interop.mkTreeAttr "expandedKeys" (Array.ofSeq v)
+
+        static member inline filterTreeNode(v: 'TEntity -> bool) = Interop.mkTreeAttr "filterTreeNode" v
+        static member inline height(v: float) = Interop.mkTreeAttr "height" v
+        static member inline icon(v: ReactElement) = Interop.mkTreeAttr "icon" v
+        static member inline loadData(v: 'T -> unit) = Interop.mkTreeAttr "loadData" v
+
+        static member inline loadedKeys(v: string seq) =
+            Interop.mkTreeAttr "loadedKeys" (Array.ofSeq v)
+
+        static member inline multiple(?v: bool) =
+            Interop.mkTreeAttr "multiple" (Option.defaultValue true v)
+
+        static member inline selectable(?v: bool) =
+            Interop.mkTreeAttr "selectable" (Option.defaultValue true v)
+
+        static member inline selectedKeys(v: string seq) =
+            Interop.mkTreeAttr "selectedKeys" (Array.ofSeq v)
+
+        static member inline showIcon(?v: bool) =
+            Interop.mkTreeAttr "showIcon" (Option.defaultValue true v)
+
+        static member inline showLine(?v: bool) =
+            Interop.mkTreeAttr "showLine" (Option.defaultValue true v)
+
+        static member inline switcherIcon(v: ReactElement) = Interop.mkTreeAttr "switcherIcon" v
+        static member inline titleRender(v: Func<'TEntity, ReactElement>) = Interop.mkTreeAttr "titleRender" v
+
+        static member inline treeData(v: 'TEntity seq) =
+            Interop.mkTreeAttr "treeData" (Array.ofSeq v)
+
+        static member inline virtualize(?v: bool) =
+            Interop.mkTreeAttr "virtual" (Option.defaultValue true v)
+
+        static member inline onCheck(v: Func<string array, TreeCheckEvent<'T>, unit>) = Interop.mkTreeAttr "onCheck" v
+        static member inline onDragEnd(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDragEnd" v
+        static member inline onDragEnter(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDragEnter" v
+        static member inline onDragLeave(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDragLeave" v
+        static member inline onDragOver(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDragOver" v
+        static member inline onDragStart(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDragStart" v
+        static member inline onDrop(v: TreeDropEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDrop" v
+
+        static member inline onExpand(v: Func<string array, TreeExpandEvent<'T>, unit>) =
+            Interop.mkTreeAttr "onExpand" v
+
+        static member inline onLoad(v: Func<string array, TreeMouseEvent<'T>, unit>) = Interop.mkTreeAttr "onLoad" v
+        static member inline onRightClick(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onRightClick" v
+
+        static member inline onSelect(v: Func<string array, TreeSelectedEvent<'T>, unit>) =
+            Interop.mkTreeAttr "onSelect" v
+
 [<Erase>]
 
 type Antd =
@@ -329,6 +480,13 @@ type Antd =
         static member inline breadcrumbItem(properties: IBreadcrumbItemProperty list) =
             Interop.reactApi.createElement (
                 (import<AntdReact.BreadcrumbImport> "Breadcrumb" "antd")
+                    .Item,
+                createObj !!properties
+            )
+
+        static member inline tree(properties: ITreeProperty list) =
+            Interop.reactApi.createElement (
+                (import<AntdReact.BreadcrumbImport> "Tree" "antd")
                     .Item,
                 createObj !!properties
             )
