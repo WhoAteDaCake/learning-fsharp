@@ -56,12 +56,16 @@ let view (model: Model) (dispatch: Msg -> unit) =
                 col.span (24 - offset)
                 col.offset offset
                 col.children [
-                    Antd.menu [
-                        menu.theme MenuTheme.Dark
-                        menu.mode MenuMode.Horizontal
-                        menu.items items
-                        menu.selectedKeys [
-                            urlToString model.CurrentUrl
+                    Html.div [
+                        prop.children [
+                            Antd.menu [
+                                menu.theme MenuTheme.Dark
+                                menu.mode MenuMode.Horizontal
+                                menu.items items
+                                menu.selectedKeys [
+                                    urlToString model.CurrentUrl
+                                ]
+                            ]
                         ]
                     ]
                 ]

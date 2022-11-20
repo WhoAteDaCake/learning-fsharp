@@ -90,7 +90,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | _, _ -> model, Cmd.none
 
 JsInterop.importAll "${outDir}/../styles/styles.less"
-JsInterop.importAll "${outDir}/../styles/tailwind.css"
+// JsInterop.importAll "${outDir}/../styles/tailwind.css"
 
 let view (model: Model) (dispatch: Msg -> unit) =
     let currentPage =
@@ -108,7 +108,12 @@ let view (model: Model) (dispatch: Msg -> unit) =
                     ]
                 ]
                 Antd.layoutContent [
-                    layoutContent.children [ currentPage ]
+                    layoutContent.children [
+                        Html.div [
+                            prop.classes ["m-4"]
+                            prop.children [currentPage]
+                        ]
+                    ]
                 ]
             ]
         ]

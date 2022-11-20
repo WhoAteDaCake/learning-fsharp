@@ -4,7 +4,6 @@ module.exports = {
         "./src/Client/output/**/*.js",
         "!./src/Client/output/fable_modules",
     ],
-
     theme: {
         extend: {},
     },
