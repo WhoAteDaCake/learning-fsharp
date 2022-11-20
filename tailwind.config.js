@@ -1,10 +1,10 @@
 module.exports = {
     content: [
-        "index.html",
-        // "./output/**/*.js",
         "./src/Client/index.html",
-        "./**/**/*.js",
+        "./src/Client/output/**/*.js",
+        "!./src/Client/output/fable_modules",
     ],
+
     theme: {
         extend: {},
     },
