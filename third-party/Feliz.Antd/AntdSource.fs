@@ -250,8 +250,7 @@ module rec AntdReact =
     type tree =
         static member inline create(properties: Interop.inlined list) =
             Interop.reactApi.createElement (
-                (import<AntdReact.BreadcrumbImport> "Tree" "antd")
-                    .Item,
+                (import "Tree" "antd"),
                 createObj !!properties
             )
         static member inline autoExpandParent (v: bool) = Interop.attr "autoExpandParent" v

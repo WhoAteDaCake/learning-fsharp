@@ -97,13 +97,13 @@ module AntdReact =
           dropToGap: bool }
 
 
-    type TreeMouseEvent<'T> = { event: MouseEvent; node: 'T }
+    type TreeMouseEvent<'T> = { event: React; node: 'T }
 
 
     type TreeData =
-        { key: string
-          title: string
-          icon: ReactElement
+        { key: U2<string, int>
+          title: U2<ReactElement, Func<TreeData, ReactElement>>
+          icon: U2<ReactElement, Func<TreeData, ReactElement>> option
           children: TreeData array
           disabled: bool
           selectable: bool }
@@ -350,14 +350,14 @@ module AntdReact =
 
     [<Erase>]
 
-    type tree<'T> =
+    type tree =
         static member inline style(properties: #IStyleAttribute list) =
             Interop.mkTreeAttr "style" (createObj !!properties)
 
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<ITreeProperty> (prop.children elements)
 
-        static member inline classNames(value: 'T) = Interop.mkTreeAttr "className" value
+        static member inline classNames(value: string) = Interop.mkTreeAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkTreeAttr "className" (String.concat " " names)
@@ -426,7 +426,7 @@ module AntdReact =
         static member inline switcherIcon(v: ReactElement) = Interop.mkTreeAttr "switcherIcon" v
         static member inline titleRender(v: Func<'TEntity, ReactElement>) = Interop.mkTreeAttr "titleRender" v
 
-        static member inline treeData(v: 'TEntity seq) =
+        static member inline treeData(v: TreeData seq) =
             Interop.mkTreeAttr "treeData" (Array.ofSeq v)
 
         static member inline virtualize(?v: bool) =
@@ -440,7 +440,7 @@ module AntdReact =
         static member inline onDragStart(v: TreeMouseEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDragStart" v
         static member inline onDrop(v: TreeDropEvent<'TEntity> -> unit) = Interop.mkTreeAttr "onDrop" v
 
-        static member inline onExpand(v: Func<string array, TreeExpandEvent<'T>, unit>) =
+        static member inline onExpand<'T>(v: Func<string array, TreeExpandEvent<'T>, unit>) =
             Interop.mkTreeAttr "onExpand" v
 
         static member inline onLoad(v: Func<string array, TreeMouseEvent<'T>, unit>) = Interop.mkTreeAttr "onLoad" v
@@ -485,10 +485,6 @@ type Antd =
             )
 
         static member inline tree(properties: ITreeProperty list) =
-            Interop.reactApi.createElement (
-                (import<AntdReact.BreadcrumbImport> "Tree" "antd")
-                    .Item,
-                createObj !!properties
-            )
+            Interop.reactApi.createElement ((import "Tree" "antd"), createObj !!properties)
     end
 

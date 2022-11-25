@@ -7,6 +7,7 @@ open Elmish
 open Fable.React
 open Feliz
 open Feliz.AntdReact
+open Fable.Core
 
 type Model =
     { Bookmarks: Deferred<Result<TreeData, string>> }
@@ -16,21 +17,21 @@ type Msg =
     | Load of AsyncOperationStatus<Result<TreeData, string>>
 
 let fakeGraph: TreeData =
-    { title = "parent 1"
-      key = "0-0"
-      icon = Html.none
+    { title = U2.Case1 (Html.text "parent 1")
+      key = U2.Case1 "0-0"
+      icon = None
       disabled = false
       selectable = true
       children =
-        [| { title = "parent 1-0"
-             key = "0-0-0"
+        [| { title = U2.Case1 (Html.text "parent 1-0")
+             key = U2.Case1 "0-0-0"
              disabled = true
-             icon = Html.none
+             icon = None
              selectable = true
              children =
-               [| { title = "leaf"
-                    key = "0-0-0-0"
-                    icon = Html.none
+               [| { title = U2.Case1 (Html.text "leaf")
+                    key = U2.Case1 "0-0-0-0"
+                    icon = None
                     disabled = false
                     selectable = true
                     children = [||] } |] } |] }
@@ -59,7 +60,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
 let view (model: Model) (dispatch: Msg -> unit) =
     let bookmarks =
         match model.Bookmarks with
-        | Resolved (Ok result) -> Antd.tree [tree.treeData result]
+        | Resolved (Ok result) -> Antd.tree [tree.treeData [result]]
         | _ -> Html.text "Failed to load"
 
     Html.div [
