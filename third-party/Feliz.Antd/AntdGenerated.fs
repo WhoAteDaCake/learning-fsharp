@@ -113,7 +113,7 @@ module AntdReact =
         | Click
         | DoubleClick
 
-
+    [<Erase>]
     type BreadcrumbImport = { Item: obj }
 
     [<StringEnum; RequireQualifiedAccess>]
@@ -173,7 +173,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<IButtonProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkButtonAttr "className" value
+        static member inline className(value: string) = Interop.mkButtonAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkButtonAttr "className" (String.concat " " names)
@@ -190,7 +190,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<IRowProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkRowAttr "className" value
+        static member inline className(value: string) = Interop.mkRowAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkRowAttr "className" (String.concat " " names)
@@ -208,7 +208,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<IColProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkColAttr "className" value
+        static member inline className(value: string) = Interop.mkColAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkColAttr "className" (String.concat " " names)
@@ -237,7 +237,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<ILayoutProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkLayoutAttr "className" value
+        static member inline className(value: string) = Interop.mkLayoutAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkLayoutAttr "className" (String.concat " " names)
@@ -253,7 +253,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<ILayoutHeaderProperty> (prop.children elements)
 
-        static member inline classNames(value: string) =
+        static member inline className(value: string) =
             Interop.mkLayoutHeaderAttr "className" value
 
         static member inline className(names: seq<string>) =
@@ -271,7 +271,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<ILayoutContentProperty> (prop.children elements)
 
-        static member inline classNames(value: string) =
+        static member inline className(value: string) =
             Interop.mkLayoutContentAttr "className" value
 
         static member inline className(names: seq<string>) =
@@ -286,7 +286,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<IMenuProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkMenuAttr "className" value
+        static member inline className(value: string) = Interop.mkMenuAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkMenuAttr "className" (String.concat " " names)
@@ -321,7 +321,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<IBreadcrumbProperty> (prop.children elements)
 
-        static member inline classNames(value: string) =
+        static member inline className(value: string) =
             Interop.mkBreadcrumbAttr "className" value
 
         static member inline className(names: seq<string>) =
@@ -336,7 +336,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<IBreadcrumbItemProperty> (prop.children elements)
 
-        static member inline classNames(value: string) =
+        static member inline className(value: string) =
             Interop.mkBreadcrumbItemAttr "className" value
 
         static member inline className(names: seq<string>) =
@@ -357,7 +357,7 @@ module AntdReact =
         static member inline children(elements: Fable.React.ReactElement list) =
             unbox<ITreeProperty> (prop.children elements)
 
-        static member inline classNames(value: string) = Interop.mkTreeAttr "className" value
+        static member inline className(value: string) = Interop.mkTreeAttr "className" value
 
         static member inline className(names: seq<string>) =
             Interop.mkTreeAttr "className" (String.concat " " names)

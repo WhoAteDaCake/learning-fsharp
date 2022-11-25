@@ -60,10 +60,27 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
 let view (model: Model) (dispatch: Msg -> unit) =
     let bookmarks =
         match model.Bookmarks with
-        | Resolved (Ok result) -> Antd.tree [tree.treeData [result]]
+        | Resolved (Ok result) ->
+            Antd.tree [
+                tree.treeData [result]
+                tree.defaultExpandAll true
+            ]
         | _ -> Html.text "Failed to load"
 
-    Html.div [
-        prop.classes [ "mt-1" ]
-        prop.children [ bookmarks ]
+    Antd.row [
+        row.className "mt-1"
+        row.children [
+            Antd.col [
+                col.span 8
+                col.children [
+                    bookmarks
+                ]
+            ]
+            Antd.col [
+                col.span 16
+                col.children [
+                    Html.text "Body here"
+                ]
+            ]
+        ]
     ]

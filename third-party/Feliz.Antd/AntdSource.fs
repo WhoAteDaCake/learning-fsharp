@@ -17,7 +17,7 @@ type WithStyle =
 
 [<Generator.Methods>]
 type WithClass =
-    static member inline classNames(value: string) = Interop.attr "className" value
+    static member inline className(value: string) = Interop.attr "className" value
 
     static member inline className(names: seq<string>) =
         Interop.attr "className" (String.concat " " names)
@@ -169,7 +169,7 @@ module rec AntdReact =
             Interop.attr "items" (Array.ofSeq attrs)
 
 
-    [<Generator.Included>]
+    [<Generator.Included;Erase>]
     type BreadcrumbImport = { Item: obj }
 
     [<Generator.Component; Generator.ExtendsMethods(typeof<WithClass>, typeof<WithChildren>, typeof<WithStyle>)>]
