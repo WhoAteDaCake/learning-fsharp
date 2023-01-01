@@ -1,5 +1,8 @@
 module Client.Routing
 
+open Client.Remote
+open Client.Pages
+
 [<RequireQualifiedAccess>]
 module Routes =
     [<Literal>]
@@ -14,22 +17,21 @@ module Routes =
 [<RequireQualifiedAccess>]
 type Url =
     | Home
-    | Bookmarks
+    | Bookmarks of Bookmarks.Url
     | NotFound
 
 let parseUrl =
     function
     | [] -> Url.Home
-    | [ Routes.Bookmarks ] -> Url.Bookmarks
+    | Routes.Bookmarks::parts -> Url.Bookmarks (Bookmarks.parseUrl parts)
     | _ -> Url.NotFound
 
 let urlToString =
     function
     | Url.Home -> Routes.Home
-    | Url.Bookmarks -> Routes.Bookmarks
+    | Url.Bookmarks _ -> Routes.Bookmarks
     | Url.NotFound -> Routes.NotFound
 
 let topLevelRoutes =
-    [ (Url.Home, "Home")
-      (Url.Bookmarks, "Bookmarks") ]
-    |> List.map (fun (u, label) -> (u, urlToString u, label))
+    [ (Routes.Home, "Home")
+      (Routes.Bookmarks, "Bookmarks") ]

@@ -10,12 +10,12 @@
         <Compile Include="Components\Tree.fs" />
         <Compile Include="Remote\Bookmarks.fs" />
         <Compile Include="Remote\Stats.fs" />
-        <Compile Include="Routing.fs" />
         <Compile Include="Deferred.fs" />
         <Compile Include="AppLayout\AppHeader.fs" />
         <Compile Include="Pages\Home.fs" />
         <Compile Include="Pages\Bookmarks.fs" />
 
+        <Compile Include="Routing.fs" />
         <Content Include="styles\styles.less" />
 
         <Content Include="styles\tailwind.css" />

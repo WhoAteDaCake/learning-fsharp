@@ -31,8 +31,8 @@ let onUrlChange = function
 | Url.Home ->
     let model, cmd = Home.init ()
     Page.Home model, Cmd.map HomeMsg cmd
-| Url.Bookmarks ->
-    let model, cmd = Bookmarks.init ()
+| Url.Bookmarks url ->
+    let model, cmd = Bookmarks.init url
     Page.Bookmark model, Cmd.map BookmarkMsg cmd
 | Url.NotFound -> Page.NotFound, Cmd.none
 

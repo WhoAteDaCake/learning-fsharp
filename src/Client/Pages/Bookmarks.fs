@@ -8,6 +8,21 @@ open Fable.React
 open Feliz
 open Feliz.AntdReact
 open Fable.Core
+open Feliz.Router
+
+type IndexQuery = {
+    Selected: string option
+}
+
+[<RequireQualifiedAccess>]
+type Url =
+| Index of IndexQuery
+
+let parseUrl = function
+| [Route.Query ["selected", selected ]] ->
+    Url.Index ({ Selected = Some selected })
+| _ -> Url.Index ({ Selected = None })
+
 
 type Leaf = {
     Id: string
@@ -27,11 +42,14 @@ and Tree =
 | TLeaf of Leaf
 
 type Model =
-    { Bookmarks: Deferred<Result<Tree, string>> }
+    {
+        Bookmarks: Deferred<Result<Tree, string>>
+        Selected: string option
+    }
 
 type Msg =
-    | Append of Tree
     | Load of AsyncOperationStatus<Result<Tree, string>>
+    | Select of string
 
 let fakeData: Tree = TBranch {
     Id = "0";
@@ -52,14 +70,28 @@ let fakeData: Tree = TBranch {
                 }
             ]
         }
+        TBranch {
+            Id = "4"
+            Title = "Personal"
+            ParentId = Some "0"
+            Children = [
+                TLeaf {
+                    Id = "5"
+                    ParentId = Some "4"
+                    Title = "Previous google search"
+                    Icon = "test"
+                    Url = "http://google.com"
+                }
+            ]
+        }
     ]
 }
 
 let fakeAsyncLoad () =
     async { return AsyncOperationStatus.Finished(Result.Ok fakeData) }
 
-let init () : Model * Cmd<Msg> =
-    let model = { Bookmarks = HasNotStartedYet }
+let init (url: Url) : Model * Cmd<Msg> =
+    let model = { Bookmarks = HasNotStartedYet; Selected = None }
 
     let cmd =
         Cmd.batch [
@@ -71,12 +103,11 @@ let init () : Model * Cmd<Msg> =
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg with
-    | Append _ -> model, Cmd.none
+    | Select id -> { model with Selected = Some id }, Cmd.none
     | Load Started -> { model with Bookmarks = InProgress }, Cmd.none
     | Load (Finished result) -> { model with Bookmarks = Resolved result }, Cmd.none
-    | _ -> model, Cmd.none
 
-let rec renderTree = function
+let rec renderBranches = function
 | TBranch branch ->
     let output: TreeData = {
         title = U2.Case1 (Html.text branch.Title)
@@ -86,30 +117,34 @@ let rec renderTree = function
         selectable = true
         children =
             branch.Children
-            |> (List.map renderTree)
+            |> (List.map renderBranches)
+            |> (List.fold (fun acc el ->
+                match el with
+                | Some(n) -> n :: acc
+                | None -> acc) [])
+            |> List.rev
             |> Array.ofSeq
     }
-    output
-| TLeaf leaf ->
-    let output: TreeData = {
-        title = U2.Case1 (Html.text leaf.Title)
-        key = U2.Case1 leaf.Id
-        icon = None
-        disabled = false
-        selectable = true
-        children = [||]
-    }
-    output
+    Some output
+| TLeaf _ ->
+    None
 
 let view (model: Model) (dispatch: Msg -> unit) =
     let bookmarks =
         match model.Bookmarks with
         | Resolved (Ok result) ->
-            Antd.tree [
-                tree.treeData [renderTree result]
-                tree.defaultExpandAll true
-            ]
-        | _ -> Html.text "Failed to load"
+            match renderBranches result with
+            | Some data ->
+                Antd.tree [
+                    tree.treeData [data]
+                    tree.defaultExpandAll true
+                ]
+            | None -> Html.text "Could not render the tree due to invalid configuration"
+
+        | Resolved (Error error) ->
+            Html.text $"Failed: {error}"
+        | HasNotStartedYet
+        | InProgress -> Html.text "Loading"
 
     Antd.row [
         row.className "mt-1"
