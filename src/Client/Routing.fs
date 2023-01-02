@@ -1,18 +1,8 @@
 module Client.Routing
 
+open Client
 open Client.Remote
 open Client.Pages
-
-[<RequireQualifiedAccess>]
-module Routes =
-    [<Literal>]
-    let Bookmarks = "bookmarks"
-
-    [<Literal>]
-    let Home = ""
-
-    [<Literal>]
-    let NotFound = "404"
 
 [<RequireQualifiedAccess>]
 type Url =

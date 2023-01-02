@@ -27,7 +27,7 @@ type Msg =
     | BookmarkMsg of Bookmarks.Msg
     | UrlChanged of Url
 
-let onUrlChange = function
+let onPageChange = function
 | Url.Home ->
     let model, cmd = Home.init ()
     Page.Home model, Cmd.map HomeMsg cmd
@@ -36,11 +36,37 @@ let onUrlChange = function
     Page.Bookmark model, Cmd.map BookmarkMsg cmd
 | Url.NotFound -> Page.NotFound, Cmd.none
 
+let onUrlChange (newUrl: Url) (model: Model) =
+    match newUrl, model.Url, model.Page with
+    | Url.Bookmarks newUrl, Url.Bookmarks oldUrl, Page.Bookmark state ->
+        match Bookmarks.onUrlChange (newUrl, oldUrl) with
+        | Bookmarks.Intent.Update msg ->
+            let data, cmd = Bookmarks.update msg state
+            { model with Page = Page.Bookmark data }, Cmd.map BookmarkMsg cmd
+        | Bookmarks.Intent.NoAction -> model, Cmd.none
+    | _ ->
+        let page, pageCmd = onPageChange newUrl
+        // Ensure Header is informed
+        let headerModel, headerCmd =
+            AppHeader.init newUrl
+
+        let cmd =
+            Cmd.batch [
+                pageCmd
+                Cmd.map HeaderMsg headerCmd
+            ]
+
+        { model with
+            Page = page
+            Url = newUrl
+            Header = headerModel },
+        cmd
+
 let init () : Model * Cmd<Msg> =
     let initialUrl =
         parseUrl (Router.currentPath ())
 
-    let page, pageCmd = onUrlChange initialUrl
+    let page, pageCmd = onPageChange initialUrl
 
     let appHeader, appCmd =
         AppHeader.init initialUrl
@@ -69,23 +95,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
             AppHeader.update msg model.Header
         { model with Header = data }, Cmd.map HeaderMsg cmd
     | UrlChanged newUrl, _ ->
-        let page, pageCmd = onUrlChange newUrl
-        // Ensure Header is informed
-        let headerModel, headerCmd =
-            AppHeader.init newUrl
-
-        let cmd =
-            Cmd.batch [
-                pageCmd
-                Cmd.map HeaderMsg headerCmd
-            ]
-
-        { model with
-            Page = page
-            Url = newUrl
-            Header = headerModel },
-        cmd
-
+        onUrlChange newUrl model
     //
     | _, _ -> model, Cmd.none
 

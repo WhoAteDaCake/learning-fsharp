@@ -30,9 +30,9 @@ let view (model: Model) (dispatch: Msg -> unit) =
     let offset = 24 / 8
     let items =
         topLevelRoutes
-        |> List.map (fun (rUrl, key, name) ->
+        |> List.map (fun (key, name) ->
             let color =
-                if rUrl = model.CurrentUrl then
+                if key = urlToString model.CurrentUrl then
                     style.color "#1677ff"
                 else
                     style.color "#fff"
