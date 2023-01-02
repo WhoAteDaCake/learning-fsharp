@@ -1,5 +1,6 @@
 module Client.Pages.Bookmarks.State
 
+open Client.Pages.Bookmarks.Domain
 open Domain
 open Client
 open Client.Deferred
@@ -34,7 +35,7 @@ let fakeData: Tree = TBranch {
                 TLeaf {
                     Id = "2"
                     ParentId = Some "1"
-                    Title = "Previous google search"
+                    Title = "Searches google search"
                     Icon = "test"
                     Url = "http://google.com"
                 }
@@ -61,8 +62,11 @@ let fakeAsyncLoad () =
     async { return AsyncOperationStatus.Finished(Result.Ok fakeData) }
 
 let init (url: Url) : Model * Cmd<Msg> =
-    // TODO: load selected from url
-    let model = { Bookmarks = HasNotStartedYet; Selected = None }
+    let selected =
+        match url with
+        | Url.Index x -> x.Selected
+
+    let model = { Bookmarks = HasNotStartedYet; Selected = selected }
 
     let cmd =
         Cmd.batch [
@@ -74,12 +78,11 @@ let init (url: Url) : Model * Cmd<Msg> =
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg with
-    | Select id -> model, Cmd.navigate(Routes.Bookmarks, ["selected", id])
+    | Select ([id]) -> model, Cmd.navigatePath(Routes.Bookmarks, ["selected", id])
     | Load Started -> { model with Bookmarks = InProgress }, Cmd.none
     | Load (Finished result) -> { model with Bookmarks = Resolved result }, Cmd.none
     | UrlMsg msg ->
         match msg with
         | UrlSelect selected ->
             { model with Selected = selected }, Cmd.none
-        | _ -> model, Cmd.none
     | _ -> model, Cmd.none

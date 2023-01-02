@@ -6,7 +6,23 @@ open Feliz
 open Feliz.AntdReact
 open Fable.Core
 
-let rec renderBranches = function
+let firstId = function
+| TBranch x -> x.Id
+| TLeaf x -> x.Id
+
+let rec trimTree (rootId: string) = function
+| TBranch branch ->
+    if branch.Id = rootId then
+        Some (TBranch branch)
+    else
+        List.tryFind (fun tree -> Option.isSome (trimTree rootId tree)) branch.Children
+| TLeaf leaf ->
+    if rootId = leaf.Id then
+        Some (TLeaf leaf)
+    else
+        None
+
+let rec treeRenderer (leafRender: Leaf -> TreeData list) childrenRender =  function
 | TBranch branch ->
     let output: TreeData = {
         title = U2.Case1 (Html.text branch.Title)
@@ -14,51 +30,83 @@ let rec renderBranches = function
         icon = None
         disabled = false
         selectable = true
-        children =
-            branch.Children
-            |> (List.map renderBranches)
-            |> (List.fold (fun acc el ->
-                match el with
-                | Some(n) -> n :: acc
-                | None -> acc) [])
-            |> List.rev
-            |> Array.ofSeq
+        children = childrenRender leafRender branch.Children
     }
-    Some output
-| TLeaf _ ->
-    None
+    [output]
+| TLeaf leaf ->
+    leafRender leaf
+
+let leafRender (leaf: Leaf) =
+    let output: TreeData = {
+        title = U2.Case1 (Html.text leaf.Title)
+        key = U2.Case1 leaf.Id
+        icon = None
+        disabled = false
+        selectable = true
+        children = Array.empty
+    }
+    [output]
+
+let rec nestedRender leafRender children =
+    children
+    |> (List.map (treeRenderer leafRender nestedRender))
+    |> List.fold List.append []
+    |> Array.ofSeq
+
+let previewRender = treeRenderer (fun _ -> []) nestedRender
+
+// Skips rendering of the parent branch
+let bodyRender = function
+| TBranch branch ->
+    branch.Children
+    |> List.map (treeRenderer leafRender (fun _ _ -> Array.empty))
+    |> List.fold List.append []
+| TLeaf leaf ->
+    leafRender leaf
 
 let view (model: Model) (dispatch: Msg -> unit) =
-    let bookmarks =
+    let content =
         match model.Bookmarks with
         | Resolved (Ok result) ->
-            match renderBranches result with
-            | Some data ->
+            let selectedId = Option.defaultValue (firstId result) model.Selected
+            let bookmarks =
                 Antd.tree [
-                    tree.treeData [data]
+                    tree.treeData (previewRender result)
                     tree.defaultExpandAll true
+                    tree.selectedKeys [selectedId]
+                    tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
                 ]
-            | None -> Html.text "Could not render the tree due to invalid configuration"
+            let body =
+                let value = trimTree selectedId result |> Option.map bodyRender
+                match value with
+                | Some data ->
+                    Antd.tree [
+                        tree.treeData data
+                        tree.defaultExpandAll true
+                        tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
+                    ]
+                | None -> Html.none
+            [
+                Antd.col [
+                    col.span 8
+                    col.children [
+                        bookmarks
+                    ]
+                ]
+                Antd.col [
+                    col.span 16
+                    col.children [
+                        body
+                    ]
+                ]
+            ]
 
         | Resolved (Error error) ->
-            Html.text $"Failed: {error}"
+            [Html.text $"Failed: {error}"]
         | HasNotStartedYet
-        | InProgress -> Html.text "Loading"
+        | InProgress -> [Html.text "Loading"]
 
     Antd.row [
         row.className "mt-1"
-        row.children [
-            Antd.col [
-                col.span 8
-                col.children [
-                    bookmarks
-                ]
-            ]
-            Antd.col [
-                col.span 16
-                col.children [
-                    Html.text "Body here"
-                ]
-            ]
-        ]
+        row.children content
     ]
