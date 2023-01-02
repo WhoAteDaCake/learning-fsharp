@@ -5,6 +5,7 @@ open Domain
 open Client
 open Client.Deferred
 open Elmish
+open Fable.Core
 open Feliz.Router
 
 
@@ -16,11 +17,13 @@ let parseUrl = function
 
 let onUrlChange = function
 | Url.Index newUrl, Url.Index oldUrl ->
+    // let _ = Browser.Dom.console.log "START: onUrlChange"
+    // let _ = Browser.Dom.console.log [newUrl, oldUrl]
+    // let _ = Browser.Dom.console.log "END: onUrlChange"
     if newUrl.Selected = oldUrl.Selected then
         Intent.NoAction
     else
         Intent.Update (UrlMsg (UrlSelect newUrl.Selected))
-| _ -> Intent.NoAction
 
 let fakeData: Tree = TBranch {
     Id = "0";
@@ -46,6 +49,20 @@ let fakeData: Tree = TBranch {
             Title = "Personal"
             ParentId = Some "0"
             Children = [
+                 TBranch {
+                    Id = "6"
+                    Title = "Houses"
+                    ParentId = Some "4"
+                    Children = [
+                        TLeaf {
+                            Id = "7"
+                            ParentId = Some "6"
+                            Title = "House number 1"
+                            Icon = "test"
+                            Url = "http://google.com"
+                        }
+                    ]
+                };
                 TLeaf {
                     Id = "5"
                     ParentId = Some "4"
@@ -77,6 +94,9 @@ let init (url: Url) : Model * Cmd<Msg> =
     model, cmd
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
+    // let _ = Browser.Dom.console.log "START: update"
+    // let _ = Browser.Dom.console.log [msg]
+    // let _ = Browser.Dom.console.log "END: update"
     match msg with
     | Select ([id]) -> model, Cmd.navigatePath(Routes.Bookmarks, ["selected", id])
     | Load Started -> { model with Bookmarks = InProgress }, Cmd.none
@@ -85,4 +105,5 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         match msg with
         | UrlSelect selected ->
             { model with Selected = selected }, Cmd.none
-    | _ -> model, Cmd.none
+    | _ ->
+        model, Cmd.none

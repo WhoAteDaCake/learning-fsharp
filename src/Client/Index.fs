@@ -36,19 +36,20 @@ let onPageChange = function
     Page.Bookmark model, Cmd.map BookmarkMsg cmd
 | Url.NotFound -> Page.NotFound, Cmd.none
 
-let onUrlChange (newUrl: Url) (model: Model) =
-    match newUrl, model.Url, model.Page with
+let onUrlChange (pageUrl: Url) (model: Model) =
+    // TODO: url is not updated here
+    match pageUrl, model.Url, model.Page with
     | Url.Bookmarks newUrl, Url.Bookmarks oldUrl, Page.Bookmark state ->
         match Bookmarks.State.onUrlChange (newUrl, oldUrl) with
         | Bookmarks.Domain.Intent.Update msg ->
             let data, cmd = Bookmarks.State.update msg state
-            { model with Page = Page.Bookmark data }, Cmd.map BookmarkMsg cmd
-        | Bookmarks.Domain.Intent.NoAction -> model, Cmd.none
+            { model with Page = Page.Bookmark data; Url = pageUrl }, Cmd.map BookmarkMsg cmd
+        | Bookmarks.Domain.Intent.NoAction -> { model with Url = pageUrl }, Cmd.none
     | _ ->
-        let page, pageCmd = onPageChange newUrl
+        let page, pageCmd = onPageChange pageUrl
         // Ensure Header is informed
         let headerModel, headerCmd =
-            AppHeader.init newUrl
+            AppHeader.init pageUrl
 
         let cmd =
             Cmd.batch [
@@ -58,7 +59,7 @@ let onUrlChange (newUrl: Url) (model: Model) =
 
         { model with
             Page = page
-            Url = newUrl
+            Url = pageUrl
             Header = headerModel },
         cmd
 

@@ -15,7 +15,7 @@ let rec trimTree (rootId: string) = function
     if branch.Id = rootId then
         Some (TBranch branch)
     else
-        List.tryFind (fun tree -> Option.isSome (trimTree rootId tree)) branch.Children
+        List.tryPick (trimTree rootId) branch.Children
 | TLeaf leaf ->
     if rootId = leaf.Id then
         Some (TLeaf leaf)
@@ -77,8 +77,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                     tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
                 ]
             let body =
-                let value = trimTree selectedId result |> Option.map bodyRender
-                match value with
+                match trimTree selectedId result |> Option.map bodyRender with
                 | Some data ->
                     Antd.tree [
                         tree.treeData data
