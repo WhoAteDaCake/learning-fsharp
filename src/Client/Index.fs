@@ -14,7 +14,7 @@ open Client.Routing
 type Page =
     | Home of Home.Model
     | NotFound
-    | Bookmark of Bookmarks.Model
+    | Bookmark of Bookmarks.Domain.Model
 
 type Model =
     { Page: Page
@@ -24,7 +24,7 @@ type Model =
 type Msg =
     | HomeMsg of Home.Msg
     | HeaderMsg of AppHeader.Msg
-    | BookmarkMsg of Bookmarks.Msg
+    | BookmarkMsg of Bookmarks.Domain.Msg
     | UrlChanged of Url
 
 let onPageChange = function
@@ -32,18 +32,18 @@ let onPageChange = function
     let model, cmd = Home.init ()
     Page.Home model, Cmd.map HomeMsg cmd
 | Url.Bookmarks url ->
-    let model, cmd = Bookmarks.init url
+    let model, cmd = Bookmarks.State.init url
     Page.Bookmark model, Cmd.map BookmarkMsg cmd
 | Url.NotFound -> Page.NotFound, Cmd.none
 
 let onUrlChange (newUrl: Url) (model: Model) =
     match newUrl, model.Url, model.Page with
     | Url.Bookmarks newUrl, Url.Bookmarks oldUrl, Page.Bookmark state ->
-        match Bookmarks.onUrlChange (newUrl, oldUrl) with
-        | Bookmarks.Intent.Update msg ->
-            let data, cmd = Bookmarks.update msg state
+        match Bookmarks.State.onUrlChange (newUrl, oldUrl) with
+        | Bookmarks.Domain.Intent.Update msg ->
+            let data, cmd = Bookmarks.State.update msg state
             { model with Page = Page.Bookmark data }, Cmd.map BookmarkMsg cmd
-        | Bookmarks.Intent.NoAction -> model, Cmd.none
+        | Bookmarks.Domain.Intent.NoAction -> model, Cmd.none
     | _ ->
         let page, pageCmd = onPageChange newUrl
         // Ensure Header is informed
@@ -88,7 +88,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         let data, cmd = Home.update msg state
         { model with Page = Page.Home data }, Cmd.map HomeMsg cmd
     | BookmarkMsg msg, Page.Bookmark state ->
-        let data, cmd = Bookmarks.update msg state
+        let data, cmd = Bookmarks.State.update msg state
         { model with Page = Page.Bookmark data }, Cmd.map BookmarkMsg cmd
     | HeaderMsg msg, _ ->
         let data, cmd =
@@ -107,7 +107,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
         match model.Page with
         | Page.Home state -> Home.view state (HomeMsg >> dispatch)
         | Page.NotFound -> Html.div [ prop.text "Not found" ]
-        | Page.Bookmark state -> Bookmarks.view state (BookmarkMsg >> dispatch)
+        | Page.Bookmark state -> Bookmarks.View.view state (BookmarkMsg >> dispatch)
 
     let layout =
         Antd.layout [

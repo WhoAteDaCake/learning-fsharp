@@ -7,13 +7,13 @@ open Client.Pages
 [<RequireQualifiedAccess>]
 type Url =
     | Home
-    | Bookmarks of Bookmarks.Url
+    | Bookmarks of Bookmarks.Domain.Url
     | NotFound
 
 let parseUrl =
     function
     | [] -> Url.Home
-    | Routes.Bookmarks::parts -> Url.Bookmarks (Bookmarks.parseUrl parts)
+    | Routes.Bookmarks::parts -> Url.Bookmarks (Bookmarks.State.parseUrl parts)
     | _ -> Url.NotFound
 
 let urlToString =
