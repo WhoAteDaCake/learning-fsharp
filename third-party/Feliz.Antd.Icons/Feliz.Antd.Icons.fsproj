@@ -1,19 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
+
     <ItemGroup Condition="'$(BUILD_GENERATE)' == ''">
-        <Compile Include="AntdSource.fs"/>
+        <Compile Include="AntdIconsSource.fs"/>
     </ItemGroup>
+
     <ItemGroup>
         <Content Include="paket.references"/>
-        <Compile Include="AntdGenerated.fs">
-            <MyriadFile>AntdSource.fs</MyriadFile>
+        <Compile Include="AntdIconsGenerated.fs">
+            <MyriadFile>AntdIconsSource.fs</MyriadFile>
             <MyriadNameSpace>Feliz</MyriadNameSpace>
         </Compile>
     </ItemGroup>
+
     <ItemGroup Condition="'$(BUILD_GENERATE)' == ''">
         <PackageReference PrivateAssets="all" Include="Myriad.Sdk" Version="0.8.1"/>
         <PackageReference PrivateAssets="all" Include="Myriad.Core" Version="0.8.1"/>
@@ -23,6 +26,6 @@
         <ProjectReference PrivateAssets="all" Include="..\Feliz.Antd.Myriad.Plugins.Typegen\Feliz.Antd.Myriad.Plugins.Typegen.fsproj"/>
     </ItemGroup>
     <Import Condition="'$(BUILD_GENERATE)' == ''" Project="../Feliz.Antd.Myriad.Plugins.Typegen/build/Feliz.Antd.Myriad.Plugins.Typegen.Test.props"/>
-
-    <Import Project="..\..\.paket\Paket.Restore.targets"/>
+    
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
