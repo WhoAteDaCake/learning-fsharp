@@ -2,10 +2,10 @@ module Client.Pages.Bookmarks.View
 
 open Domain
 open Client.Deferred
+open Fable.Core
 open Feliz
 open Feliz.AntdIconsReact
 open Feliz.AntdReact
-open Fable.Core
 
 let firstId = function
 | TBranch x -> x.Id
@@ -47,11 +47,23 @@ let rec treeRenderer (leafRender: Leaf -> TreeData list) childrenRender =  funct
 | TLeaf leaf ->
     leafRender leaf
 
+let favicon (url: string) =
+    let cleanUrl = url.Split("?")[0]
+    let src =
+        $"https://s2.googleusercontent.com/s2/favicons?domain_url={JS.encodeURIComponent cleanUrl}"
+    Html.div [
+        prop.className "flex w-full h-full justify-center items-center"
+        prop.children [
+            Html.img [ prop.src src ]
+        ]
+    ]
+
 let leafRender (leaf: Leaf) =
     let output: TreeData = {
         title = U2.Case1 (Html.text leaf.Title)
         key = U2.Case1 leaf.Id
-        icon = None
+        // chrome://favicon2/?size=16&scaleFactor=1x&pageUrl=https%3A%2F%2Fhn.algolia.com%2F&allowGoogleServerFallback=0
+        icon = Some (U2.Case1 (favicon leaf.Url))
         disabled = false
         selectable = true
         children = Array.empty
@@ -75,6 +87,18 @@ let bodyRender = function
 | TLeaf leaf ->
     leafRender leaf
 
+let rec findTreePart (partId: string) = function
+| TLeaf leaf ->
+    if leaf.Id = partId then
+        Some (TLeaf leaf)
+    else
+        None
+| TBranch branch ->
+    if branch.Id = partId then
+        Some (TBranch branch)
+    else
+        List.tryPick (findTreePart partId) branch.Children
+
 let view (model: Model) (dispatch: Msg -> unit) =
     let content =
         match model.Bookmarks with
@@ -86,7 +110,9 @@ let view (model: Model) (dispatch: Msg -> unit) =
                     tree.defaultExpandAll true
                     tree.showIcon true
                     tree.selectedKeys [selectedId]
-                    tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
+                    tree.onSelect (fun keys event ->
+                        Browser.Dom.console.log keys
+                        dispatch (Select (keys[0])))
                 ]
             let body =
                 match trimTree selectedId result |> Option.map bodyRender with
@@ -95,20 +121,32 @@ let view (model: Model) (dispatch: Msg -> unit) =
                         tree.showIcon true
                         tree.treeData data
                         tree.defaultExpandAll true
-                        tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
+                        tree.onSelect (fun keys event ->
+                            match findTreePart keys[0] result with
+                            | Some (TBranch branch) -> dispatch (Select branch.Id)
+                            | Some (TLeaf leaf) -> dispatch (Navigate leaf.Url)
+                            | _ -> ()
+                            // dispatch (Select (keys |> List.ofArray))
+                        )
                     ]
                 | None -> Html.none
             [
                 Antd.col [
                     col.span 8
                     col.children [
-                        bookmarks
+                        Html.div [
+                            prop.className "p-2"
+                            prop.children bookmarks
+                        ]
                     ]
                 ]
                 Antd.col [
                     col.span 16
                     col.children [
-                        body
+                        Html.div [
+                            prop.className "p-2"
+                            prop.children body
+                        ]
                     ]
                 ]
             ]

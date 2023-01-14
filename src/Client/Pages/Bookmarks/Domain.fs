@@ -45,7 +45,8 @@ type UrlMsg =
 
 type Msg =
     | Load of AsyncOperationStatus<Result<Tree, string>>
-    | Select of string list
+    | Select of string
+    | Navigate of string
     | UrlMsg of UrlMsg
 
 [<RequireQualifiedAccess>]

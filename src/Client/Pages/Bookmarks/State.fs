@@ -59,7 +59,7 @@ let fakeData: Tree = TBranch {
                             ParentId = Some "6"
                             Title = "House number 1"
                             Icon = "test"
-                            Url = "http://google.com"
+                            Url = "https://www.google.com/search?q=js+get+favicon&oq=js+get+favicon&aqs=chrome..69i57.4214j0j1&sourceid=chrome&ie=UTF-8"
                         }
                     ]
                 };
@@ -98,12 +98,16 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     // let _ = Browser.Dom.console.log [msg]
     // let _ = Browser.Dom.console.log "END: update"
     match msg with
-    | Select ([id]) -> model, Cmd.navigatePath(Routes.Bookmarks, ["selected", id])
+    | Select id -> model, Cmd.navigatePath(Routes.Bookmarks, ["selected", id])
     | Load Started -> { model with Bookmarks = InProgress }, Cmd.none
     | Load (Finished result) -> { model with Bookmarks = Resolved result }, Cmd.none
     | UrlMsg msg ->
         match msg with
         | UrlSelect selected ->
             { model with Selected = selected }, Cmd.none
+    | Navigate url ->
+        let view = Browser.Dom.window.``open``(url, "_blank")
+        let _ = view.focus ()
+        model, Cmd.none
     | _ ->
         model, Cmd.none
