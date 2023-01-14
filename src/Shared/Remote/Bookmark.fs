@@ -10,4 +10,7 @@ type BookmarkTree =
     | Leaf of {| Id: int; Name: string; Url: string |}
 
 type IBookmarksApi =
-    { getBookmarks: unit -> Async<Result<BookmarkTree, Error.T>> }
+    {
+        getBookmarks: unit -> Async<Result<BookmarkTree, Error.T>>
+        uploadBookmarks: byte[] -> Result<string, Error.T>
+    }
