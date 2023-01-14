@@ -14,5 +14,13 @@ let mutable store =
 
 let getBookmarks () = asyncResult { return store }
 
+let uploadBookmarks (file: byte[]) = asyncResult {
+    return "test"
+}
+
+
 let api: IBookmarksApi =
-    { getBookmarks = getBookmarks }
+    {
+        getBookmarks = getBookmarks
+        uploadBookmarks = uploadBookmarks;
+    }

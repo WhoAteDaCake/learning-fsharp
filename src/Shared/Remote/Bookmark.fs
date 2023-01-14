@@ -12,5 +12,5 @@ type BookmarkTree =
 type IBookmarksApi =
     {
         getBookmarks: unit -> Async<Result<BookmarkTree, Error.T>>
-        uploadBookmarks: byte[] -> Result<string, Error.T>
+        uploadBookmarks: byte[] -> Async<Result<string, Error.T>>
     }
