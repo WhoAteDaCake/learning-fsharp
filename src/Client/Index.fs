@@ -15,6 +15,7 @@ type Page =
     | Home of Home.Model
     | NotFound
     | Bookmark of Bookmarks.Domain.Model
+    | Import of Import.Domain.Model
 
 type Model =
     { Page: Page
@@ -25,6 +26,7 @@ type Msg =
     | HomeMsg of Home.Msg
     | HeaderMsg of AppHeader.Msg
     | BookmarkMsg of Bookmarks.Domain.Msg
+    | ImportMsg of Import.Domain.Msg
     | UrlChanged of Url
 
 let onPageChange = function
@@ -34,6 +36,9 @@ let onPageChange = function
 | Url.Bookmarks url ->
     let model, cmd = Bookmarks.State.init url
     Page.Bookmark model, Cmd.map BookmarkMsg cmd
+| Url.Import url ->
+    let model, cmd = Import.State.init url
+    Page.Import model, Cmd.map ImportMsg cmd
 | Url.NotFound -> Page.NotFound, Cmd.none
 
 let onUrlChange (pageUrl: Url) (model: Model) =
@@ -90,6 +95,9 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | BookmarkMsg msg, Page.Bookmark state ->
         let data, cmd = Bookmarks.State.update msg state
         { model with Page = Page.Bookmark data }, Cmd.map BookmarkMsg cmd
+    | ImportMsg msg, Page.Import state ->
+        let data, cmd = Import.State.update msg state
+        { model with Page = Page.Import data }, Cmd.map ImportMsg cmd
     | HeaderMsg msg, _ ->
         let data, cmd =
             AppHeader.update msg model.Header
@@ -108,6 +116,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
         | Page.Home state -> Home.view state (HomeMsg >> dispatch)
         | Page.NotFound -> Html.div [ prop.text "Not found" ]
         | Page.Bookmark state -> Bookmarks.View.view state (BookmarkMsg >> dispatch)
+        | Page.Import state -> Import.View.view state (ImportMsg >> dispatch)
 
     let layout =
         Antd.layout [

@@ -3,6 +3,9 @@ namespace Client
 [<RequireQualifiedAccess>]
 module Routes =
     [<Literal>]
+    let Import = "import"
+
+    [<Literal>]
     let Bookmarks = "bookmarks"
 
     [<Literal>]

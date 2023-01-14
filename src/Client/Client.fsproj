@@ -16,6 +16,9 @@
         <Compile Include="Pages\Bookmarks\Domain.fs" />
         <Compile Include="Pages\Bookmarks\State.fs" />
         <Compile Include="Pages\Bookmarks\View.fs" />
+        <Compile Include="Pages\Import\Domain.fs" />
+        <Compile Include="Pages\Import\State.fs" />
+        <Compile Include="Pages\Import\View.fs" />
 
         <Compile Include="Routing.fs" />
         <Compile Include="AppLayout\AppHeader.fs" />

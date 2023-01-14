@@ -44,10 +44,10 @@ type UrlMsg =
 | UrlSelect of string option
 
 type Msg =
-    | Load of AsyncOperationStatus<Result<Tree, string>>
-    | Select of string
-    | Navigate of string
-    | UrlMsg of UrlMsg
+| Load of AsyncOperationStatus<Result<Tree, string>>
+| Select of string
+| Navigate of string
+| UrlMsg of UrlMsg
 
 [<RequireQualifiedAccess>]
 type Intent =
