@@ -26,6 +26,7 @@
         <Compile Include="App.fs" />
         <Content Include=".editorconfig" />
         <PackageReference Include="Feliz.Router" Version="3.8.0" />
+        <ProjectReference Include="..\..\third-party\Feliz.Antd.Icons\Feliz.Antd.Icons.fsproj" />
         <ProjectReference Include="..\..\third-party\Feliz.Antd\Feliz.Antd.fsproj" />
 
         <ProjectReference Include="..\Shared\Shared.fsproj" />

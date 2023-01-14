@@ -37,7 +37,6 @@ let onPageChange = function
 | Url.NotFound -> Page.NotFound, Cmd.none
 
 let onUrlChange (pageUrl: Url) (model: Model) =
-    // TODO: url is not updated here
     match pageUrl, model.Url, model.Page with
     | Url.Bookmarks newUrl, Url.Bookmarks oldUrl, Page.Bookmark state ->
         match Bookmarks.State.onUrlChange (newUrl, oldUrl) with

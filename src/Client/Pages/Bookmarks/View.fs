@@ -3,6 +3,7 @@ module Client.Pages.Bookmarks.View
 open Domain
 open Client.Deferred
 open Feliz
+open Feliz.AntdIconsReact
 open Feliz.AntdReact
 open Fable.Core
 
@@ -27,7 +28,17 @@ let rec treeRenderer (leafRender: Leaf -> TreeData list) childrenRender =  funct
     let output: TreeData = {
         title = U2.Case1 (Html.text branch.Title)
         key = U2.Case1 branch.Id
-        icon = None
+        icon = Some (U2.Case1 (
+            Html.div [
+                prop.className "flex w-full h-full justify-center items-center"
+                prop.children [
+                    AntdIcons.folderOutlined [
+                        folderOutlined.style [
+                            style.fontSize 18
+                        ]
+                    ]
+                ]
+            ]))
         disabled = false
         selectable = true
         children = childrenRender leafRender branch.Children
@@ -73,6 +84,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                 Antd.tree [
                     tree.treeData (previewRender result)
                     tree.defaultExpandAll true
+                    tree.showIcon true
                     tree.selectedKeys [selectedId]
                     tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
                 ]
@@ -80,6 +92,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                 match trimTree selectedId result |> Option.map bodyRender with
                 | Some data ->
                     Antd.tree [
+                        tree.showIcon true
                         tree.treeData data
                         tree.defaultExpandAll true
                         tree.onSelect (fun keys event -> dispatch (Select (keys |> List.ofArray)))
