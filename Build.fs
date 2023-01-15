@@ -16,6 +16,9 @@ let serverPath =
 let clientPath =
     Path.getFullName "src/Client"
 
+// let clientPath =
+//     Path.getFullName "src/Client"
+
 let deployPath = Path.getFullName "deploy"
 
 let sharedTestsPath =
@@ -39,25 +42,6 @@ Target.create "Bundle" (fun _ ->
       "client", dotnet "fable -o output -s --run npm run build" clientPath ]
     |> runParallel)
 
-Target.create "Azure" (fun _ ->
-    let web =
-        webApp {
-            name "SafeApp"
-            operating_system OS.Windows
-            runtime_stack Runtime.DotNet60
-            zip_deploy "deploy"
-        }
-
-    let deployment =
-        arm {
-            location Location.WestEurope
-            add_resource web
-        }
-
-    deployment
-    |> Deploy.execute "SafeApp" Deploy.NoParameters
-    |> ignore)
-
 Target.create "Run" (fun _ ->
     run dotnet "build" sharedPath
 
@@ -71,6 +55,10 @@ Target.create "RunOnly" (fun _ ->
     [ "server", dotnet "watch run" serverPath
       "client", dotnet "fable watch -o output -s --run npm run start" clientPath ]
     |> runParallel)
+
+Target.create "ExtensionsDev" (fun _ ->
+    dotnet "fable watch -o output -s --run npm run start" clientPath
+    )
 
 
 Target.create "UiOnly" (fun _ ->

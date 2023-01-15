@@ -2,8 +2,6 @@
 import { defineConfig } from 'vite'
 import dns from 'dns'
 import react from '@vitejs/plugin-react'
-import history from 'connect-history-api-fallback';
-import * as path from 'path'
 
 dns.setDefaultResultOrder('verbatim')
 
