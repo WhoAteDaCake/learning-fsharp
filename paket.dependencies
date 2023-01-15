@@ -4,6 +4,8 @@ storage: none
 
 nuget Fsharp.Core ~> 6
 nuget Fable.Remoting.Giraffe
+nuget FSharp.Data 5.0.2
+nuget FsToolkit.ErrorHandling
 nuget Saturn
 nuget Expecto
 

@@ -9,6 +9,7 @@
         <Compile Include="Remote\Stats.fs" />
         <None Include="paket.references" />
         <Compile Include="App.fs" />
+        <Folder Include="Utilities\XML" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Shared\Shared.fsproj" />
